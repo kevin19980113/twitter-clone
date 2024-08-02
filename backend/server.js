@@ -1,11 +1,19 @@
 import express from "express";
 import dotenv from "dotenv";
-import authRouter from "./routes/auth.js";
+import { v2 as cloudinary } from "cloudinary";
+import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/user.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import protectRoute from "./middleware/protectRoute.js";
 
 dotenv.config();
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 connectMongoDB();
 
@@ -17,7 +25,9 @@ app.use(express.urlencoded({ extended: true })); // to parse req.body as URL-enc
 app.use(cookieParser()); // to parse cookies from req.headers
 
 // routing API routes
-app.use("/api/auth", authRouter);
+app.use("/api/auth", authRoutes);
+app.use(protectRoute);
+app.use("/api/users", userRoutes);
 
 mongoose.connection.once("open", () => {
   console.log("MongoDB connected");
