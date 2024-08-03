@@ -4,7 +4,7 @@ import {
   login,
   refresh,
   logout,
-  getUser,
+  getMe,
 } from "../controllers/authController.js";
 import protectRoute from "../middleware/protectRoute.js";
 import loginLimiter from "../middleware/loginLimiter.js";
@@ -16,6 +16,6 @@ authRoutes.post("/signup", signup);
 authRoutes.post("/login", loginLimiter, login);
 authRoutes.get("/refresh", refresh);
 authRoutes.post("/logout", logout);
-authRoutes.get("/me", protectRoute, getUser);
+authRoutes.get("/me", protectRoute, getMe);
 
 export default authRoutes;

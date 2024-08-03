@@ -18,7 +18,9 @@ const protectRoute = async (req, res, next) => {
         if (err)
           return res.status(403).json({ error: "Unauthorized Access Token" }); // Forbidden
 
-        const user = await User.findById(decoded.userId).select("-password");
+        const user = await User.findById(decoded.userId).select(
+          "-password -refreshToken"
+        );
 
         if (!user) {
           return res.status(404).json({ error: "User not found" });

@@ -147,10 +147,10 @@ export const logout = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" }); // 500 Internal Server Error
   }
 };
-export const getUser = async (req, res) => {
+export const getMe = async (req, res) => {
   try {
-    const userId = req.userId;
-    const user = await User.findById(userId).select("-password");
+    const userId = req.user._id;
+    const user = await User.findById(userId).select("-password -refreshToken");
     res.status(200).json(user);
   } catch (error) {
     console.log("Error in getUser contoller: ", error.message);

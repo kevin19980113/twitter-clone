@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.js";
+import postRoutes from "./routes/post.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
@@ -28,6 +29,7 @@ app.use(cookieParser()); // to parse cookies from req.headers
 app.use("/api/auth", authRoutes);
 app.use(protectRoute);
 app.use("/api/users", userRoutes);
+app.use("/api/post", postRoutes);
 
 mongoose.connection.once("open", () => {
   console.log("MongoDB connected");
