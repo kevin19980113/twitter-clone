@@ -4,6 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 import authRoute from "./routes/auth.js";
 import userRoute from "./routes/user.js";
 import postRoute from "./routes/post.js";
+import notificationRoute from "./routes/notification.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
@@ -30,6 +31,7 @@ app.use("/api/auth", authRoute);
 app.use(protectRoute);
 app.use("/api/users", userRoute);
 app.use("/api/post", postRoute);
+app.use("/api/notifications", notificationRoute);
 
 mongoose.connection.once("open", () => {
   console.log("MongoDB connected");
