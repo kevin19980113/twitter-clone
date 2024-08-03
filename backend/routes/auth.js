@@ -9,13 +9,13 @@ import {
 import protectRoute from "../middleware/protectRoute.js";
 import loginLimiter from "../middleware/loginLimiter.js";
 
-const authRoutes = express.Router();
+const authRoute = express.Router();
 
 // /api/auth...
-authRoutes.post("/signup", signup);
-authRoutes.post("/login", loginLimiter, login);
-authRoutes.get("/refresh", refresh);
-authRoutes.post("/logout", logout);
-authRoutes.get("/me", protectRoute, getMe);
+authRoute.post("/signup", signup);
+authRoute.post("/login", loginLimiter, login);
+authRoute.get("/refresh", refresh);
+authRoute.post("/logout", logout);
+authRoute.get("/me", protectRoute, getMe);
 
-export default authRoutes;
+export default authRoute;

@@ -10,15 +10,15 @@ import {
   likeUnlikePost,
 } from "../controllers/postController.js";
 
-const postRoutes = express.Router();
+const postRoute = express.Router();
 
-postRoutes.get("/all", getAllPosts);
-postRoutes.get("/following", getFollowingPosts);
-postRoutes.get("/likes/:id", getLikedPosts);
-postRoutes.get("/user/:username", getUserPosts);
-postRoutes.post("/create", createPost);
-postRoutes.post("/like/:id", likeUnlikePost);
-postRoutes.post("/comment/:id", commentOnPost);
-postRoutes.delete("/delete/:id", deletePost);
+postRoute.get("/all", getAllPosts);
+postRoute.get("/following", getFollowingPosts);
+postRoute.get("/likes/:id", getLikedPosts);
+postRoute.get("/user/:username", getUserPosts);
+postRoute.post("/create", createPost);
+postRoute.post("/like/:id", likeUnlikePost);
+postRoute.post("/comment/:id", commentOnPost);
+postRoute.delete("/delete/:id", deletePost);
 
-export default postRoutes;
+export default postRoute;

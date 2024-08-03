@@ -1,9 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
-import authRoutes from "./routes/auth.js";
-import userRoutes from "./routes/user.js";
-import postRoutes from "./routes/post.js";
+import authRoute from "./routes/auth.js";
+import userRoute from "./routes/user.js";
+import postRoute from "./routes/post.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
@@ -26,10 +26,10 @@ app.use(express.urlencoded({ extended: true })); // to parse req.body as URL-enc
 app.use(cookieParser()); // to parse cookies from req.headers
 
 // routing API routes
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoute);
 app.use(protectRoute);
-app.use("/api/users", userRoutes);
-app.use("/api/post", postRoutes);
+app.use("/api/users", userRoute);
+app.use("/api/post", postRoute);
 
 mongoose.connection.once("open", () => {
   console.log("MongoDB connected");

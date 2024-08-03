@@ -6,11 +6,11 @@ import {
   updateUserProfile,
 } from "../controllers/userContoller.js";
 
-const userRoutes = express.Router();
+const userRoute = express.Router();
 
-userRoutes.get("/profile/:username", getUserProfile);
-userRoutes.get("/suggested", getSuggestedUsers);
-userRoutes.post("/follow/:idToModify", followUnfollowUser);
-userRoutes.post("/update/", updateUserProfile);
+userRoute.get("/profile/:username", getUserProfile);
+userRoute.get("/suggested", getSuggestedUsers);
+userRoute.post("/follow/:idToModify", followUnfollowUser);
+userRoute.post("/update", updateUserProfile);
 
-export default userRoutes;
+export default userRoute;
