@@ -8,7 +8,7 @@ import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 
 function App() {
-  const authUser = false;
+  const authUser = true;
   return (
     <div className="flex max-w-6xl mx-auto">
       {authUser && <Sidebar />}

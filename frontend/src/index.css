@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.input-bordered:focus,
+.input-bordered:focus-within {
+  @apply outline outline-primary;
+}
