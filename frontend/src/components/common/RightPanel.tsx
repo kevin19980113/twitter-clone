@@ -1,43 +1,17 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton.tsx";
-import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useAuthStore } from "../../hooks/use-store.ts";
-import { useShallow } from "zustand/react/shallow";
-import { User } from "../../types/userType.ts";
 import { Fragment, useState } from "react";
 import { useFollow } from "../../hooks/use-follow.ts";
 import LoadingSpinner from "./LoadingSpinner.tsx";
+import { useSuggest } from "../../hooks/use-suggest.ts";
 
 const RightPanel = () => {
   const [followingUserId, setFollowingUserId] = useState<string | null>(null);
-  const { accessToken } = useAuthStore(
-    useShallow((state) => ({
-      accessToken: state.accessToken,
-    }))
-  );
   const { follow } = useFollow();
   const { mutate: followMutate } = follow;
 
-  const { data: suggestedUsers, isLoading } = useQuery({
-    queryKey: ["suggestedUsers"],
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/users/suggested", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error();
-        return data as User[];
-      } catch (error) {
-        toast.error("Failed to load suggested users. Please try again later.");
-      }
-    },
-  });
+  const { suggestUsers } = useSuggest();
+  const { data: suggestedUsers, isLoading } = suggestUsers;
 
   if (suggestedUsers?.length === 0) return <div className="md:w-64 w-0" />;
 
