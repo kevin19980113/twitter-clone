@@ -1,9 +1,38 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton.tsx";
-import { USERS_FOR_RIGHT_PANEL } from "../../utils/db/dummy";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useAuthStore } from "../../hooks/use-store.ts";
+import { useShallow } from "zustand/react/shallow";
 
 const RightPanel = () => {
-  const isLoading = false;
+  const { accessToken } = useAuthStore(
+    useShallow((state) => ({
+      accessToken: state.accessToken,
+    }))
+  );
+
+  const { data: suggestedUsers, isLoading } = useQuery({
+    queryKey: ["suggestedUsers"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/users/suggested", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error();
+        return data;
+      } catch (error) {
+        toast.error("Failed to load suggested users. Please try again later.");
+      }
+    },
+  });
+
+  if (suggestedUsers?.length === 0) return <div className="md:w-64 w-0" />;
 
   return (
     <div className="hidden lg:block m-4">
@@ -20,7 +49,7 @@ const RightPanel = () => {
             </>
           )}
           {!isLoading &&
-            USERS_FOR_RIGHT_PANEL?.map((user) => (
+            suggestedUsers?.map((user: any) => (
               <Link
                 to={`/profile/${user.username}`}
                 className="flex items-center justify-between gap-4"
