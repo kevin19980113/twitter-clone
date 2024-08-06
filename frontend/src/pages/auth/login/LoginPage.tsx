@@ -1,28 +1,25 @@
 import { Link } from "react-router-dom";
-
 import XSvg from "../../../components/svgs/X";
-
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { loginSchema, loginSchemaType } from "../../../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import { useAuth } from "../../../hooks/use-auth";
 
 const LoginPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
+    formState: { errors },
   } = useForm<loginSchemaType>({
     resolver: zodResolver(loginSchema),
   });
+  const { login } = useAuth();
 
   const handleLogin = async (loginFormData: loginSchemaType) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    console.log(loginFormData);
-    reset();
+    login.mutate(loginFormData);
   };
 
   return (
@@ -50,7 +47,7 @@ const LoginPage = () => {
                 className="grow"
                 placeholder="username"
                 name="username"
-                disabled={isSubmitting}
+                disabled={login.isPending}
               />
             </label>
             {errors?.username && (
@@ -70,7 +67,7 @@ const LoginPage = () => {
                 className="grow"
                 placeholder="Password"
                 name="password"
-                disabled={isSubmitting}
+                disabled={login.isPending}
               />
             </label>
             {errors?.password && (
@@ -80,7 +77,7 @@ const LoginPage = () => {
             )}
           </div>
           <button className="btn rounded-full btn-primary text-white">
-            {isSubmitting ? <LoadingSpinner size="md" /> : "Login"}
+            {login.isPending ? <LoadingSpinner size="md" /> : "Login"}
           </button>
         </form>
         <div className="flex flex-col gap-2 mt-4">

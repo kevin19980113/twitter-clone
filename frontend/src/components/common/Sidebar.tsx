@@ -1,17 +1,26 @@
 import XSvg from "../svgs/X";
-
 import { MdHomeFilled } from "react-icons/md";
 import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
+import { useQuery } from "@tanstack/react-query";
+import { User, useAuthStore } from "../../hooks/use-store";
+import { useShallow } from "zustand/react/shallow";
+import { useAuth } from "../../hooks/use-auth";
 
 const Sidebar = () => {
-  const data = {
-    fullName: "John Doe",
-    username: "johndoe",
-    profileImg: "/avatars/boy1.png",
-  };
+  const { accessToken } = useAuthStore(
+    useShallow((state) => ({
+      accessToken: state.accessToken,
+    }))
+  );
+
+  const { logout } = useAuth();
+
+  const { data: authUser } = useQuery<User | null>({
+    queryKey: ["authUser", accessToken],
+  });
 
   return (
     <div className="md:flex-[2_2_0] w-18 max-w-52">
@@ -41,7 +50,7 @@ const Sidebar = () => {
 
           <li className="flex justify-center md:justify-start">
             <Link
-              to={`/profile/${data?.username}`}
+              to={`/profile/${authUser?.username}`}
               className="flex gap-3 items-center hover:bg-stone-900 transition-all rounded-full duration-300 p-2 md:py-2 md:px-3 max-w-fit cursor-pointer"
             >
               <FaUser className="size-5 ml-px" />
@@ -49,24 +58,30 @@ const Sidebar = () => {
             </Link>
           </li>
         </ul>
-        {data && (
+        {authUser && (
           <Link
-            to={`/profile/${data.username}`}
+            to={`/profile/${authUser.username}`}
             className="mt-auto flex gap-2 items-center transition-all duration-300 hover:bg-[#181818] p-3 rounded-full"
           >
             <div className="avatar hidden md:flex items-center justify-center">
               <div className="w-8 rounded-full">
-                <img src={data?.profileImg || "/avatar-placeholder.png"} />
+                <img src={authUser?.profileImg || "/avatar-placeholder.png"} />
               </div>
             </div>
             <div className="flex items-center justify-between flex-1">
               <div className="hidden md:block">
                 <p className="text-white font-bold text-sm w-20 truncate">
-                  {data?.fullName}
+                  {authUser?.fullName}
                 </p>
-                <p className="text-slate-500 text-sm">@{data?.username}</p>
+                <p className="text-slate-500 text-sm">@{authUser?.username}</p>
               </div>
-              <BiLogOut className="size-5 cursor-pointer" />
+              <BiLogOut
+                className="size-5 cursor-pointer hover:text-primary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  logout.mutate();
+                }}
+              />
             </div>
           </Link>
         )}

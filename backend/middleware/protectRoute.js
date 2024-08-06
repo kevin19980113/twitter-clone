@@ -5,9 +5,9 @@ const protectRoute = async (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];
     if (!authHeader?.startsWith("Bearer "))
-      return res.status(401).json({
-        error: "Unauthorized",
-      }); // Unauthorized
+      return res.status(403).json({
+        error: "No Bearer Token",
+      });
 
     const token = authHeader.split(" ")[1];
 
@@ -16,7 +16,7 @@ const protectRoute = async (req, res, next) => {
       process.env.JWT_ACCESS_TOKEN_SECRET,
       async (err, decoded) => {
         if (err)
-          return res.status(403).json({ error: "Unauthorized Access Token" }); // Forbidden
+          return res.status(401).json({ error: "Unauthorized Access Token" });
 
         const user = await User.findById(decoded.userId).select(
           "-password -refreshToken"

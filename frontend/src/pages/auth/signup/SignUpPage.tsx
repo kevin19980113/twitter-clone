@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
-
 import XSvg from "../../../components/svgs/X";
-
 import { MdOutlineMail } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
@@ -10,21 +8,21 @@ import { useForm } from "react-hook-form";
 import { signupSchema, signupSchemaType } from "../../../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import { useAuth } from "../../../hooks/use-auth";
 
 const SignUpPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<signupSchemaType>({
     resolver: zodResolver(signupSchema),
   });
+  const { signup } = useAuth();
 
   const handleSignup = async (signupFormData: signupSchemaType) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    console.log(signupFormData);
-    reset();
+    signup.mutate({ ...signupFormData, reset });
   };
 
   return (
@@ -52,7 +50,7 @@ const SignUpPage = () => {
               className="grow"
               placeholder="Email"
               name="email"
-              disabled={isSubmitting}
+              disabled={signup.isPending}
             />
           </label>
           {errors?.email && (
@@ -75,7 +73,7 @@ const SignUpPage = () => {
                   className="grow"
                   placeholder="Username"
                   name="username"
-                  disabled={isSubmitting}
+                  disabled={signup.isPending}
                 />
               </label>
               {errors?.username && (
@@ -97,7 +95,7 @@ const SignUpPage = () => {
                   className="grow"
                   placeholder="Full Name"
                   name="fullName"
-                  disabled={isSubmitting}
+                  disabled={signup.isPending}
                 />
               </label>
               {errors?.fullName && (
@@ -119,7 +117,7 @@ const SignUpPage = () => {
               className="grow"
               placeholder="Password"
               name="password"
-              disabled={isSubmitting}
+              disabled={signup.isPending}
             />
           </label>
           {errors?.password && (
@@ -128,7 +126,7 @@ const SignUpPage = () => {
             </p>
           )}
           <button className="btn rounded-full btn-primary text-white">
-            {isSubmitting ? <LoadingSpinner size="md" /> : "Sign up"}
+            {signup.isPending ? <LoadingSpinner size="md" /> : "Sign up"}
           </button>
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">

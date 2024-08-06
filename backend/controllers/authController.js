@@ -12,23 +12,23 @@ export const signup = async (req, res) => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: "Invalid email format" }); // 400 Bad Request
+      return res.status(400).json({ error: "Invalid email format" }); // 400 Bad Request
     }
 
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ message: "Username already exists" });
+      return res.status(400).json({ error: "Username already exists" });
     }
 
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({ error: "Email already exists" });
     }
 
     if (password.length < 6) {
       return res
         .status(400)
-        .json({ message: "Password must be at least 6 characters long" });
+        .json({ error: "Password must be at least 6 characters long" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -72,13 +72,13 @@ export const login = async (req, res) => {
     );
 
     if (!foundUser || !isPasswordCorrect) {
-      return res.status(401).json({ message: "Invalid username or password" }); // 401 Unauthorized
+      return res.status(401).json({ error: "Invalid username or password" }); // 401 Unauthorized
     }
 
     const accessToken = generateAccessToken(foundUser._id);
     await generateRefreshTokenAndSetCookie(foundUser, res);
 
-    res.status(200).json({ accessToken });
+    res.status(200).json({ accessToken, username: foundUser.username });
   } catch (error) {
     console.log("Error in login contoller: ", error.message);
     res.status(500).json({ error: "Internal Server Error" }); // 500 Internal Server Error
@@ -89,13 +89,13 @@ export const refresh = async (req, res) => {
     const cookies = req.cookies;
     if (!cookies?.jwt)
       return res.status(401).json({
-        error: "No Token Provided",
-      }); // Unauthorized
+        error: "NO TOKEN",
+      }); // forbidden
 
     const refreshToken = cookies.jwt;
     const foundUser = await User.findOne({ refreshToken });
     if (!foundUser)
-      return res.status(403).json({ error: "Invaild refreshToken" }); // Forbidden
+      return res.status(401).json({ error: "Invaild refreshToken" });
 
     jwt.verify(
       refreshToken,
@@ -103,10 +103,10 @@ export const refresh = async (req, res) => {
       (err, decoded) => {
         if (err || foundUser._id.toString() !== decoded.userId)
           return res
-            .status(403)
-            .json({ error: "Failed verifying refresh token" }); // Forbidden
+            .status(401)
+            .json({ error: "Failed verifying refresh token" });
 
-        const accessToken = generateAccessToken(foundUser.username);
+        const accessToken = generateAccessToken(foundUser._id);
         res.json({ accessToken });
       }
     );
@@ -141,7 +141,7 @@ export const logout = async (req, res) => {
       secure: process.env.NODE_ENV !== "development",
     });
 
-    res.status(200).json({ message: "Logged out successfully" });
+    res.status(200).json({ username: foundUser.username });
   } catch (error) {
     console.log("Error in log out contoller: ", error.message);
     res.status(500).json({ error: "Internal Server Error" }); // 500 Internal Server Error
