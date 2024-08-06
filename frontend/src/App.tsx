@@ -6,14 +6,17 @@ import Sidebar from "./components/common/Sidebar";
 import RightPanel from "./components/common/RightPanel";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 import LoadingSpinner from "./components/common/LoadingSpinner";
-import { isRefreshTokenExpired, useAuth } from "./hooks/use-auth";
+import {
+  REFRESH_THRESHOLD,
+  isRefreshTokenExpired,
+  useAuth,
+} from "./hooks/use-auth";
 import { useEffect } from "react";
 
 function App() {
   const { getAuthUser, logout } = useAuth();
-  const { mutate: logoutMutate } = logout;
   const { data: authUser, isLoading, isError } = getAuthUser;
   const navigate = useNavigate();
 
@@ -21,15 +24,11 @@ function App() {
     const checkRefreshToken = async () => {
       if (authUser) {
         const isExpired = await isRefreshTokenExpired();
-        if (isExpired) {
-          logoutMutate();
-          navigate("/login");
-          toast.error("Your session has expired. Please log in again.");
-        }
+        if (isExpired) logout.mutate();
       }
     };
 
-    const intervalId = setInterval(checkRefreshToken, 5 * 60 * 1000);
+    const intervalId = setInterval(checkRefreshToken, REFRESH_THRESHOLD);
 
     return () => clearInterval(intervalId);
   }, [authUser, isRefreshTokenExpired, navigate]);

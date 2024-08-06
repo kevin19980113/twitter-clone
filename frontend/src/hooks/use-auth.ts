@@ -1,9 +1,9 @@
 import {
-  QueryClient,
   UseMutationResult,
   UseQueryResult,
   useMutation,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
 import { useAuthStore } from "./use-store";
 import { useShallow } from "zustand/react/shallow";
@@ -11,8 +11,9 @@ import { loginSchemaType, signupSchemaType } from "../lib/schema";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "sonner";
 import { User } from "../types/userType";
+import { useCallback } from "react";
 
-const REFRESH_THRESHOLD = 5 * 60 * 1000;
+export const REFRESH_THRESHOLD = 5 * 60 * 1000;
 
 type LoginMutationResult = {
   username: string;
@@ -66,14 +67,25 @@ export const useAuth = (): {
   signup: UseMutationResult<void, Error, signupMutationVariableType>;
   logout: UseMutationResult<logoutMutationResult, Error, void>;
   getAuthUser: UseQueryResult<User, Error>;
+  setAccessTokenAsync: (token: string | null) => Promise<void>;
 } => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const { accessToken, setAccessToken } = useAuthStore(
     useShallow((state) => ({
       accessToken: state.accessToken,
       setAccessToken: state.setAccessToken,
     }))
+  );
+
+  const setAccessTokenAsync = useCallback(
+    (token: string | null): Promise<void> => {
+      return new Promise((resolve) => {
+        setAccessToken(token);
+        setTimeout(() => resolve(), 0);
+      });
+    },
+    [setAccessToken]
   );
 
   const login = useMutation({
@@ -93,12 +105,10 @@ export const useAuth = (): {
 
       return data;
     },
-    onSuccess: (data: { accessToken: string; username: string }) => {
-      setAccessToken(data.accessToken); // Store Access Token in state
+    onSuccess: async (data: { accessToken: string; username: string }) => {
+      await setAccessTokenAsync(data.accessToken); // Store Access Token in state
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
-      setTimeout(() => {
-        toast.success(`Welcome back "${data.username}"`);
-      }, 400);
+      toast.success(`Welcome back "${data.username}"`);
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -140,36 +150,48 @@ export const useAuth = (): {
     mutationFn: async () => {
       const response = await fetch("/api/auth/logout", {
         method: "POST",
+        credentials: "include",
       });
 
-      if (!response.ok) throw new Error();
-      const data = await response.json();
+      if (response.status === 204) return null; //expired refresh token
 
+      if (!response.ok) throw new Error();
+
+      const data = await response.json();
       return data;
     },
-    onSuccess: (data: { username: string }) => {
-      setAccessToken(null);
+    onSuccess: async (data: { username: string }) => {
+      await setAccessTokenAsync(null);
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
-      toast.success(`"${data.username}" Logged out successfully. `);
+      if (data)
+        return toast.success(`"${data.username}" Logged out successfully. `);
+
+      toast.error("Your session has expired. Please log in again.");
     },
-    onError: () => {
-      toast.error(`Failed log out. Please try again.`);
+    onError: (error) => {
+      toast.error(`Failed log out. Please try again. ${error}`);
     },
   });
 
   const getAuthUser = useQuery({
-    queryKey: ["authUser", accessToken], // when accessToken changes, refetch the data
+    queryKey: ["authUser"], // when accessToken changes, refetch the data
     queryFn: async () => {
       let latestAccessToken = accessToken;
 
       if (!latestAccessToken) {
         // when access token is gone from memory(when user refreshes page, etc...)
         latestAccessToken = await refreshAccessToken();
+
         if (!latestAccessToken) return null; // unauthorized user
+
+        await setAccessTokenAsync(latestAccessToken);
       } else if (isAccessTokenExpired(latestAccessToken)) {
         // if access token is expired, refresh it
         latestAccessToken = await refreshAccessToken();
+
         if (!latestAccessToken) return null; // unauthorized user
+
+        await setAccessTokenAsync(latestAccessToken);
       }
 
       const response = await fetch("/api/auth/me", {
@@ -181,7 +203,6 @@ export const useAuth = (): {
 
       if (!response.ok) throw new Error("something went wrong.");
 
-      setAccessToken(latestAccessToken);
       return data;
     },
     refetchInterval: REFRESH_THRESHOLD,
@@ -189,5 +210,5 @@ export const useAuth = (): {
     retry: false,
   });
 
-  return { login, signup, logout, getAuthUser };
+  return { login, signup, logout, getAuthUser, setAccessTokenAsync };
 };

@@ -5,23 +5,15 @@ import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
 import { useQuery } from "@tanstack/react-query";
-import { useAuthStore } from "../../hooks/use-store";
-import { useShallow } from "zustand/react/shallow";
 import { useAuth } from "../../hooks/use-auth";
 import { User } from "../../types/userType";
 
 const Sidebar = () => {
-  const { accessToken } = useAuthStore(
-    useShallow((state) => ({
-      accessToken: state.accessToken,
-    }))
-  );
-
   const { logout } = useAuth();
   const { mutate: logoutMutate } = logout;
 
   const { data: authUser } = useQuery<User | null>({
-    queryKey: ["authUser", accessToken],
+    queryKey: ["authUser"],
   });
 
   return (
