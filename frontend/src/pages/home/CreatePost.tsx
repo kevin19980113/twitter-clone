@@ -28,8 +28,7 @@ const CreatePost = () => {
   });
 
   const handleCreatePost = (createPostData: createPostSchemaType) => {
-    console.log("Creating post", createPostData);
-    createPostMutate({ ...createPostData, reset });
+    createPostMutate({ ...createPostData, img, reset, setImg });
   };
 
   const handleImgChange = (e: ChangeEvent<HTMLInputElement>) => {

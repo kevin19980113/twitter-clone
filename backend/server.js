@@ -22,7 +22,14 @@ connectMongoDB();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-app.use(express.json()); // to parse req.body as JSON
+app.use(express.json({ limit: "10mb" })); // to parse req.body as JSON
+app.use((err, req, res, next) => {
+  if (err.type === "entity.too.large")
+    return res
+      .status(413)
+      .json({ error: "File Size is too large (Maximum - 10mb)" });
+  next(err);
+});
 app.use(express.urlencoded({ extended: true })); // to parse req.body as URL-encoded
 app.use(cookieParser()); // to parse cookies from req.headers
 

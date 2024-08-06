@@ -84,7 +84,6 @@ export const createPostSchema = z.object({
   text: z.string().min(1, {
     message: "Please enter some content for your post.",
   }),
-  img: z.string().optional(),
 });
 
 export type signupSchemaType = z.infer<typeof signupSchema>;

@@ -11,7 +11,11 @@ import { toast } from "sonner";
 import { createPostSchemaType } from "../lib/schema";
 
 type deletePostVariableType = { postId: string };
-type createPostMutationType = createPostSchemaType & { reset: () => void };
+type createPostMutationType = createPostSchemaType & {
+  img: string | null;
+  reset: () => void;
+  setImg: React.Dispatch<React.SetStateAction<string | null>>;
+};
 
 export const usePost = (): {
   getAllPosts: (POST_ENDPOINT: string) => UseQueryResult<any, Error>;
@@ -69,7 +73,12 @@ export const usePost = (): {
   });
 
   const createPost = useMutation({
-    mutationFn: async ({ text, img, reset }: createPostMutationType) => {
+    mutationFn: async ({
+      text,
+      img,
+      reset,
+      setImg,
+    }: createPostMutationType) => {
       const res = await fetch(`/api/posts/create`, {
         method: "POST",
         headers: {
@@ -84,11 +93,13 @@ export const usePost = (): {
         throw new Error(
           data.error || "Failed to create post. Please try again."
         );
+
       return data;
     },
-    onSuccess: (_, { reset }) => {
+    onSuccess: (_, { reset, setImg }) => {
       toast.success("Post created successfully.");
       reset();
+      setImg(null);
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
     onError: (error) => {
