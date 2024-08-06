@@ -20,6 +20,7 @@ type LoginMutationResult = {
 type logoutMutationResult = {
   username: string;
 };
+type signupMutationVariableType = signupSchemaType & { reset: () => void };
 
 const refreshAccessToken = async (): Promise<string | null> => {
   try {
@@ -63,13 +64,7 @@ export const isRefreshTokenExpired = async (): Promise<boolean> => {
 
 export const useAuth = (): {
   login: UseMutationResult<LoginMutationResult, Error, loginSchemaType>;
-  signup: UseMutationResult<
-    void,
-    Error,
-    signupSchemaType & {
-      reset: () => void;
-    }
-  >;
+  signup: UseMutationResult<void, Error, signupMutationVariableType>;
   logout: UseMutationResult<logoutMutationResult, Error, void>;
   getAuthUser: UseQueryResult<User, Error>;
 } => {
@@ -118,7 +113,7 @@ export const useAuth = (): {
       fullName,
       password,
       reset,
-    }: signupSchemaType & { reset: () => void }) => {
+    }: signupMutationVariableType) => {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {

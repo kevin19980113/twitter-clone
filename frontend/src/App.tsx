@@ -13,14 +13,16 @@ import { useEffect } from "react";
 
 function App() {
   const { getAuthUser, logout } = useAuth();
+  const { mutate: logoutMutate } = logout;
+  const { data: authUser, isLoading, isError } = getAuthUser;
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkRefreshToken = async () => {
-      if (getAuthUser.data) {
+      if (authUser) {
         const isExpired = await isRefreshTokenExpired();
         if (isExpired) {
-          logout.mutate();
+          logoutMutate();
           navigate("/login");
           toast.error("Your session has expired. Please log in again.");
         }
@@ -30,16 +32,16 @@ function App() {
     const intervalId = setInterval(checkRefreshToken, 5 * 60 * 1000);
 
     return () => clearInterval(intervalId);
-  }, [getAuthUser.data, isRefreshTokenExpired, navigate]);
+  }, [authUser, isRefreshTokenExpired, navigate]);
 
-  if (getAuthUser.isLoading)
+  if (isLoading)
     return (
       <div className="h-screen flex justify-center items-center">
         <LoadingSpinner size="lg" />
       </div>
     );
 
-  if (getAuthUser.isError) {
+  if (isError) {
     return (
       <div className="h-screen flex justify-center items-center">
         <p className="text-center text-2xl text-red-500">
@@ -51,34 +53,30 @@ function App() {
 
   return (
     <div className="flex max-w-6xl mx-auto">
-      {getAuthUser.data && <Sidebar />}
+      {authUser && <Sidebar />}
       <Routes>
         <Route
           path="/"
-          element={getAuthUser.data ? <HomePage /> : <Navigate to="/login" />}
+          element={authUser ? <HomePage /> : <Navigate to="/login" />}
         />
         <Route
           path="/login"
-          element={!getAuthUser.data ? <LoginPage /> : <Navigate to="/" />}
+          element={!authUser ? <LoginPage /> : <Navigate to="/" />}
         />
         <Route
           path="/signup"
-          element={!getAuthUser.data ? <SignUpPage /> : <Navigate to="/" />}
+          element={!authUser ? <SignUpPage /> : <Navigate to="/" />}
         />
         <Route
           path="/notifications"
-          element={
-            getAuthUser.data ? <NotificationPage /> : <Navigate to="/login" />
-          }
+          element={authUser ? <NotificationPage /> : <Navigate to="/login" />}
         />
         <Route
           path="/profile/:username"
-          element={
-            getAuthUser.data ? <ProfilePage /> : <Navigate to="/login" />
-          }
+          element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
       </Routes>
-      {getAuthUser.data && <RightPanel />}
+      {authUser && <RightPanel />}
       <Toaster position="top-center" richColors />
     </div>
   );

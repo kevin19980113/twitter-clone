@@ -1,24 +1,35 @@
 import { CiImageOn } from "react-icons/ci";
 //import { BsEmojiSmileFill } from "react-icons/bs";
-import { useRef, useState, FormEvent, ChangeEvent } from "react";
+import { useRef, useState, ChangeEvent } from "react";
 import { IoCloseSharp } from "react-icons/io5";
+import { useAuth } from "../../hooks/use-auth";
+import { useForm } from "react-hook-form";
+import { createPostSchema, createPostSchemaType } from "../../lib/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { usePost } from "../../hooks/use-post";
 
 const CreatePost = () => {
-  const [text, setText] = useState("");
   const [img, setImg] = useState<string | null>(null);
-
   const imgRef = useRef<HTMLInputElement | null>(null);
 
-  const isPending = false;
-  const isError = false;
+  const { getAuthUser } = useAuth();
+  const { data: authUser } = getAuthUser;
 
-  const data = {
-    profileImg: "/avatars/boy1.png",
-  };
+  const { createPost } = usePost();
+  const { mutate: createPostMutate, isPending, isError } = createPost;
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    alert("Post created successfully");
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    reset,
+  } = useForm<createPostSchemaType>({
+    resolver: zodResolver(createPostSchema),
+  });
+
+  const handleCreatePost = (createPostData: createPostSchemaType) => {
+    console.log("Creating post", createPostData);
+    createPostMutate({ ...createPostData, reset });
   };
 
   const handleImgChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -38,16 +49,21 @@ const CreatePost = () => {
     <div className="flex p-4 items-start gap-4 border-b border-gray-700">
       <div className="avatar">
         <div className="size-10 rounded-full">
-          <img src={data.profileImg || "/avatar-placeholder.png"} />
+          <img src={authUser?.profileImg || "/avatar-placeholder.png"} />
         </div>
       </div>
-      <form className="flex flex-col gap-2 w-full" onSubmit={handleSubmit}>
+      <form
+        className="flex flex-col gap-2 w-full"
+        onSubmit={handleSubmit(handleCreatePost)}
+      >
         <textarea
-          className="textarea w-full h-36 p-0 text-base resize-none border-none focus:outline-none border-gray-800"
+          {...register("text")}
+          className="textarea w-full h-36 p-0 text-base resize-none border-none focus:outline-none"
           placeholder="What is happening?!"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
         />
+        {errors.text && (
+          <p className="text-sm text-red-500">{errors.text.message}</p>
+        )}
         {img && (
           <div className="relative w-72 mx-auto mb-4">
             <IoCloseSharp
@@ -83,7 +99,11 @@ const CreatePost = () => {
             {isPending ? "Posting..." : "Post"}
           </button>
         </div>
-        {isError && <div className="text-red-500">Something went wrong</div>}
+        {isError && (
+          <div className="text-red-500">
+            Something went wrong. Please Try Again.
+          </div>
+        )}
       </form>
     </div>
   );

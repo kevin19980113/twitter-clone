@@ -20,9 +20,10 @@ const SignUpPage = () => {
     resolver: zodResolver(signupSchema),
   });
   const { signup } = useAuth();
+  const { mutate: signupMutate, isPending } = signup;
 
   const handleSignup = async (signupFormData: signupSchemaType) => {
-    signup.mutate({ ...signupFormData, reset });
+    signupMutate({ ...signupFormData, reset });
   };
 
   return (
@@ -50,7 +51,7 @@ const SignUpPage = () => {
               className="grow"
               placeholder="Email"
               name="email"
-              disabled={signup.isPending}
+              disabled={isPending}
             />
           </label>
           {errors?.email && (
@@ -73,7 +74,7 @@ const SignUpPage = () => {
                   className="grow"
                   placeholder="Username"
                   name="username"
-                  disabled={signup.isPending}
+                  disabled={isPending}
                 />
               </label>
               {errors?.username && (
@@ -95,7 +96,7 @@ const SignUpPage = () => {
                   className="grow"
                   placeholder="Full Name"
                   name="fullName"
-                  disabled={signup.isPending}
+                  disabled={isPending}
                 />
               </label>
               {errors?.fullName && (
@@ -117,7 +118,7 @@ const SignUpPage = () => {
               className="grow"
               placeholder="Password"
               name="password"
-              disabled={signup.isPending}
+              disabled={isPending}
             />
           </label>
           {errors?.password && (
@@ -126,7 +127,7 @@ const SignUpPage = () => {
             </p>
           )}
           <button className="btn rounded-full btn-primary text-white">
-            {signup.isPending ? <LoadingSpinner size="md" /> : "Sign up"}
+            {isPending ? <LoadingSpinner size="md" /> : "Sign up"}
           </button>
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">

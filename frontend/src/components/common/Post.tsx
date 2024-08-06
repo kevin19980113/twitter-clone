@@ -30,22 +30,22 @@ type PostProps = {
 const Post = ({ post }: PostProps) => {
   const [comment, setComment] = useState("");
   const { getAuthUser } = useAuth();
-  const currentUser = getAuthUser.data;
+  const { data: authUser } = getAuthUser;
 
   const { deletePost } = usePost();
-  const { mutate, isPending } = deletePost(post._id);
+  const { mutate: deletePostMutate, isPending } = deletePost;
 
   const postOwner = post.user;
   const isLiked = false;
 
-  const isMyPost = currentUser?._id === post.user._id;
+  const isMyPost = authUser?._id === post.user._id;
 
   const formattedDate = "1h";
 
   const isCommenting = false;
 
   const handleDeletePost = () => {
-    mutate();
+    deletePostMutate({ postId: post._id });
   };
 
   const handlePostComment = (e: FormEvent<HTMLFormElement>) => {

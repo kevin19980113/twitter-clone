@@ -80,6 +80,14 @@ export const editProfileSchema = z
     }
   );
 
+export const createPostSchema = z.object({
+  text: z.string().min(1, {
+    message: "Please enter some content for your post.",
+  }),
+  img: z.string().optional(),
+});
+
 export type signupSchemaType = z.infer<typeof signupSchema>;
 export type loginSchemaType = z.infer<typeof loginSchema>;
 export type editProfileSchemaType = z.infer<typeof editProfileSchema>;
+export type createPostSchemaType = z.infer<typeof createPostSchema>;

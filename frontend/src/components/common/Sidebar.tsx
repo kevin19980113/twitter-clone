@@ -17,6 +17,7 @@ const Sidebar = () => {
   );
 
   const { logout } = useAuth();
+  const { mutate: logoutMutate } = logout;
 
   const { data: authUser } = useQuery<User | null>({
     queryKey: ["authUser", accessToken],
@@ -79,7 +80,7 @@ const Sidebar = () => {
                 className="size-5 cursor-pointer hover:text-primary"
                 onClick={(e) => {
                   e.preventDefault();
-                  logout.mutate();
+                  logoutMutate();
                 }}
               />
             </div>

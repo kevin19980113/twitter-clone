@@ -17,9 +17,10 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
   const { login } = useAuth();
+  const { mutate: loginMutate, isPending } = login;
 
   const handleLogin = async (loginFormData: loginSchemaType) => {
-    login.mutate(loginFormData);
+    loginMutate(loginFormData);
   };
 
   return (
@@ -47,7 +48,7 @@ const LoginPage = () => {
                 className="grow"
                 placeholder="username"
                 name="username"
-                disabled={login.isPending}
+                disabled={isPending}
               />
             </label>
             {errors?.username && (
@@ -67,7 +68,7 @@ const LoginPage = () => {
                 className="grow"
                 placeholder="Password"
                 name="password"
-                disabled={login.isPending}
+                disabled={isPending}
               />
             </label>
             {errors?.password && (
@@ -77,7 +78,7 @@ const LoginPage = () => {
             )}
           </div>
           <button className="btn rounded-full btn-primary text-white">
-            {login.isPending ? <LoadingSpinner size="md" /> : "Login"}
+            {isPending ? <LoadingSpinner size="md" /> : "Login"}
           </button>
         </form>
         <div className="flex flex-col gap-2 mt-4">

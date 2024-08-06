@@ -15,7 +15,6 @@ const Posts = ({ feedType }: { feedType: "FOR YOU" | "FOLLOWING" }) => {
     }
   };
   const POST_ENDPOINT = getPostEndPoint();
-
   const { getAllPosts } = usePost();
 
   const {
