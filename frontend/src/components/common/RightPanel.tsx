@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuthStore } from "../../hooks/use-store.ts";
 import { useShallow } from "zustand/react/shallow";
+import { User } from "../../types/userType.ts";
 
 const RightPanel = () => {
   const { accessToken } = useAuthStore(
@@ -25,7 +26,7 @@ const RightPanel = () => {
         const data = await res.json();
 
         if (!res.ok) throw new Error();
-        return data;
+        return data as User[];
       } catch (error) {
         toast.error("Failed to load suggested users. Please try again later.");
       }

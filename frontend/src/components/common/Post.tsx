@@ -6,28 +6,11 @@ import { FaTrash } from "react-icons/fa";
 import { useState, FormEvent, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
-import { User } from "../../hooks/use-store";
 import { usePost } from "../../hooks/use-post";
 import LoadingSpinner from "./LoadingSpinner";
+import { PostType } from "../../types/postType";
 
-type Comment = {
-  _id: string;
-  text: string;
-  user: User;
-};
-
-type PostProps = {
-  post: {
-    _id: string;
-    text: string;
-    img?: string;
-    user: User;
-    comments: Comment[];
-    likes: string[];
-  };
-};
-
-const Post = ({ post }: PostProps) => {
+const Post = ({ post }: { post: PostType }) => {
   const [comment, setComment] = useState("");
   const { getAuthUser } = useAuth();
   const { data: authUser } = getAuthUser;

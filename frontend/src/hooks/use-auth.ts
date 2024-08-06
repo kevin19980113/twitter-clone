@@ -5,11 +5,12 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { User, useAuthStore } from "./use-store";
+import { useAuthStore } from "./use-store";
 import { useShallow } from "zustand/react/shallow";
 import { loginSchemaType, signupSchemaType } from "../lib/schema";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "sonner";
+import { User } from "../types/userType";
 
 const REFRESH_THRESHOLD = 5 * 60 * 1000;
 
@@ -37,7 +38,6 @@ const refreshAccessToken = async (): Promise<string | null> => {
     return null;
   }
 };
-
 const isAccessTokenExpired = (token: string) => {
   const decoded = jwtDecode(token);
   if (!decoded || typeof decoded.exp !== "number") return token;
@@ -49,7 +49,6 @@ const isAccessTokenExpired = (token: string) => {
 
   return false;
 };
-
 export const isRefreshTokenExpired = async (): Promise<boolean> => {
   const response = await fetch("/api/auth/refresh", {
     credentials: "include",

@@ -1,15 +1,7 @@
 import { StateCreator, create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-
-export type User = {
-  _id: string;
-  username: string;
-  fullName: string;
-  profileImg?: string;
-  bio?: string;
-  link?: string;
-};
+import { User } from "../types/userType";
 
 type storeState = {
   user: User | null;

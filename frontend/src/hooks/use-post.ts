@@ -9,6 +9,7 @@ import { useAuthStore } from "./use-store";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "sonner";
 import { createPostSchemaType } from "../lib/schema";
+import { PostType } from "../types/postType";
 
 type deletePostVariableType = { postId: string };
 type createPostMutationType = createPostSchemaType & {
@@ -18,7 +19,7 @@ type createPostMutationType = createPostSchemaType & {
 };
 
 export const usePost = (): {
-  getAllPosts: (POST_ENDPOINT: string) => UseQueryResult<any, Error>;
+  getAllPosts: (POST_ENDPOINT: string) => UseQueryResult<PostType[], Error>;
   deletePost: UseMutationResult<void, Error, deletePostVariableType>;
   createPost: UseMutationResult<void, Error, createPostMutationType>;
 } => {
@@ -93,8 +94,6 @@ export const usePost = (): {
         throw new Error(
           data.error || "Failed to create post. Please try again."
         );
-
-      return data;
     },
     onSuccess: (_, { reset, setImg }) => {
       toast.success("Post created successfully.");

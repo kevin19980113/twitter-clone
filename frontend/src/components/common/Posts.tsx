@@ -42,7 +42,7 @@ const Posts = ({ feedType }: { feedType: "FOR YOU" | "FOLLOWING" }) => {
       )}
       {!isLoading && !isRefetching && posts && (
         <div>
-          {posts.map((post: any) => (
+          {posts.map((post) => (
             <Post key={post._id} post={post} />
           ))}
         </div>
