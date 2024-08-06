@@ -5,12 +5,10 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState, FormEvent, Fragment } from "react";
 import { Link } from "react-router-dom";
-
-type User = {
-  username: string;
-  profileImg?: string;
-  fullName: string;
-};
+import { useAuth } from "../../hooks/use-auth";
+import { User } from "../../hooks/use-store";
+import { usePost } from "../../hooks/use-post";
+import LoadingSpinner from "./LoadingSpinner";
 
 type Comment = {
   _id: string;
@@ -31,16 +29,24 @@ type PostProps = {
 
 const Post = ({ post }: PostProps) => {
   const [comment, setComment] = useState("");
+  const { getAuthUser } = useAuth();
+  const currentUser = getAuthUser.data;
+
+  const { deletePost } = usePost();
+  const { mutate, isPending } = deletePost(post._id);
+
   const postOwner = post.user;
   const isLiked = false;
 
-  const isMyPost = true;
+  const isMyPost = currentUser?._id === post.user._id;
 
   const formattedDate = "1h";
 
   const isCommenting = false;
 
-  const handleDeletePost = () => {};
+  const handleDeletePost = () => {
+    mutate();
+  };
 
   const handlePostComment = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -76,10 +82,14 @@ const Post = ({ post }: PostProps) => {
             </span>
             {isMyPost && (
               <span className="flex justify-end flex-1">
-                <FaTrash
-                  className="cursor-pointer hover:text-red-500"
-                  onClick={handleDeletePost}
-                />
+                {isPending ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <FaTrash
+                    className="cursor-pointer hover:text-red-500"
+                    onClick={handleDeletePost}
+                  />
+                )}
               </span>
             )}
           </div>
