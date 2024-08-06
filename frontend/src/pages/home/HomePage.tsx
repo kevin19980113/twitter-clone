@@ -4,7 +4,7 @@ import Posts from "../../components/common/Posts";
 import CreatePost from "./CreatePost";
 
 const HomePage = () => {
-  const [feedType, setFeedType] = useState<"forYou" | "following">("forYou");
+  const [feedType, setFeedType] = useState<"FOR YOU" | "FOLLOWING">("FOR YOU");
 
   return (
     <Fragment>
@@ -15,26 +15,26 @@ const HomePage = () => {
             className={
               "flex justify-center flex-1 p-3 hover:bg-secondary transition duration-300 cursor-pointer relative"
             }
-            onClick={() => setFeedType("forYou")}
+            onClick={() => setFeedType("FOR YOU")}
           >
             For you
-            {feedType === "forYou" && (
+            {feedType === "FOR YOU" && (
               <div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary"></div>
             )}
           </div>
           <div
             className="flex justify-center flex-1 p-3 hover:bg-secondary transition duration-300 cursor-pointer relative"
-            onClick={() => setFeedType("following")}
+            onClick={() => setFeedType("FOLLOWING")}
           >
             Following
-            {feedType === "following" && (
+            {feedType === "FOLLOWING" && (
               <div className="absolute bottom-0 w-10  h-1 rounded-full bg-primary"></div>
             )}
           </div>
         </div>
 
         <CreatePost />
-        <Posts />
+        <Posts feedType={feedType} />
       </div>
     </Fragment>
   );

@@ -30,7 +30,7 @@ app.use(cookieParser()); // to parse cookies from req.headers
 app.use("/api/auth", authRoute);
 app.use(protectRoute);
 app.use("/api/users", userRoute);
-app.use("/api/post", postRoute);
+app.use("/api/posts", postRoute);
 app.use("/api/notifications", notificationRoute);
 
 mongoose.connection.once("open", () => {
