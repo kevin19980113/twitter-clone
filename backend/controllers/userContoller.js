@@ -65,9 +65,7 @@ export const followUnfollowUser = async (req, res) => {
 
       await newNotification.save();
 
-      res
-        .status(200)
-        .json({ message: `${userToModify.username} followed successfully"` });
+      res.status(200).json({ username: userToModify.username });
     }
   } catch (error) {
     console.log("Error in followUnfollowUser controller: ", error.message);

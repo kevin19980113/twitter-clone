@@ -5,13 +5,19 @@ import { toast } from "sonner";
 import { useAuthStore } from "../../hooks/use-store.ts";
 import { useShallow } from "zustand/react/shallow";
 import { User } from "../../types/userType.ts";
+import { Fragment, useState } from "react";
+import { useFollow } from "../../hooks/use-follow.ts";
+import LoadingSpinner from "./LoadingSpinner.tsx";
 
 const RightPanel = () => {
+  const [followingUserId, setFollowingUserId] = useState<string | null>(null);
   const { accessToken } = useAuthStore(
     useShallow((state) => ({
       accessToken: state.accessToken,
     }))
   );
+  const { follow } = useFollow();
+  const { mutate: followMutate } = follow;
 
   const { data: suggestedUsers, isLoading } = useQuery({
     queryKey: ["suggestedUsers"],
@@ -42,15 +48,15 @@ const RightPanel = () => {
         <div className="flex flex-col gap-4">
           {/* item */}
           {isLoading && (
-            <>
+            <Fragment>
               <RightPanelSkeleton />
               <RightPanelSkeleton />
               <RightPanelSkeleton />
               <RightPanelSkeleton />
-            </>
+            </Fragment>
           )}
           {!isLoading &&
-            suggestedUsers?.map((user: any) => (
+            suggestedUsers?.map((user) => (
               <Link
                 to={`/profile/${user.username}`}
                 className="flex items-center justify-between gap-4"
@@ -74,9 +80,20 @@ const RightPanel = () => {
                 <div>
                   <button
                     className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
-                    onClick={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setFollowingUserId(user._id);
+                      followMutate(
+                        { userId: user._id },
+                        { onSettled: () => setFollowingUserId(null) }
+                      );
+                    }}
                   >
-                    Follow
+                    {followingUserId === user._id ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      "Follow"
+                    )}
                   </button>
                 </div>
               </Link>
