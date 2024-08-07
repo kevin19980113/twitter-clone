@@ -87,7 +87,6 @@ export const commentOnPost = async (req, res) => {
       from: req.user._id,
       to: post.user,
       type: "COMMENT",
-      post: postId,
     });
     await notification.save();
 
@@ -129,7 +128,6 @@ export const likeUnlikePost = async (req, res) => {
         from: req.user._id,
         to: post.user,
         type: "LIKE",
-        post: postId,
       });
       await notification.save();
 

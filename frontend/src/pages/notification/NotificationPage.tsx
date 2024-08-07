@@ -1,34 +1,35 @@
 import { Link } from "react-router-dom";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import { Fragment } from "react";
-import { FaUser } from "react-icons/fa";
+import { Fragment, useState } from "react";
+import { FaRegComment, FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
+import { useNotification } from "../../hooks/use-notification";
 
 const NotificationPage = () => {
-  const isLoading = false;
-  const notifications = [
-    {
-      _id: "1",
-      from: {
-        _id: "1",
-        username: "johndoe",
-        profileImg: "/avatars/boy2.png",
-      },
-      type: "follow",
-    },
-    {
-      _id: "2",
-      from: {
-        _id: "2",
-        username: "janedoe",
-        profileImg: "/avatars/girl1.png",
-      },
-      type: "like",
-    },
-  ];
+  const [DeletingNotification, setDeletingNotification] = useState<
+    string | null
+  >(null);
 
-  const deleteNotifications = () => {
-    alert("All notifications deleted");
+  const { getNotifications, deleteAllNotifications, deletenotification } =
+    useNotification();
+  const { data: notifications } = getNotifications;
+  const { mutate: deleteAllNotificationsMutate, isPending: isDeletingAll } =
+    deleteAllNotifications;
+  const { mutate: deleteNotificationMutate, isPending: isDeleting } =
+    deletenotification;
+
+  const handleDeleteAllNotifications = () => {
+    deleteAllNotificationsMutate();
+  };
+
+  const handleDeleteNotification = (notificationId: string) => {
+    setDeletingNotification(notificationId);
+    deleteNotificationMutate(
+      { notificationId },
+      {
+        onSettled: () => setDeletingNotification(null),
+      }
+    );
   };
 
   return (
@@ -38,14 +39,14 @@ const NotificationPage = () => {
           <p className="font-bold">Notifications</p>
           <button
             className="btn btn-primary btn-sm rounded-md"
-            onClick={() => deleteNotifications()}
+            onClick={() => handleDeleteAllNotifications()}
           >
             Delete All
           </button>
         </div>
-        {isLoading && (
+        {isDeletingAll && (
           <div className="flex justify-center h-full items-center">
-            <LoadingSpinner size="xl" />
+            <LoadingSpinner size="lg" />
           </div>
         )}
         {notifications?.length === 0 && (
@@ -54,11 +55,14 @@ const NotificationPage = () => {
         {notifications?.map((notification) => (
           <div className="border-b border-gray-700" key={notification._id}>
             <div className="flex gap-2 p-4">
-              {notification.type === "follow" && (
+              {notification.type === "FOLLOW" && (
                 <FaUser className="w-7 h-7 text-primary" />
               )}
-              {notification.type === "like" && (
+              {notification.type === "LIKE" && (
                 <FaHeart className="w-7 h-7 text-red-500" />
+              )}
+              {notification.type === "COMMENT" && (
+                <FaRegComment className="w-7 h-7 text-blue-500" />
               )}
               <Link to={`/profile/${notification.from.username}`}>
                 <div className="avatar">
@@ -75,11 +79,26 @@ const NotificationPage = () => {
                   <span className="font-bold">
                     @{notification.from.username}
                   </span>{" "}
-                  {notification.type === "follow"
+                  {notification.type === "FOLLOW"
                     ? "followed you"
-                    : "liked your post"}
+                    : notification.type === "LIKE"
+                    ? "liked your post"
+                    : "commented on your post"}
                 </div>
               </Link>
+
+              {isDeleting && DeletingNotification === notification._id ? (
+                <div className="flex justify-center h-full items-center ml-auto">
+                  <LoadingSpinner size="md" />
+                </div>
+              ) : (
+                <button
+                  className="btn btn-primary btn-sm rounded-md ml-auto"
+                  onClick={() => handleDeleteNotification(notification._id)}
+                >
+                  Delete
+                </button>
+              )}
             </div>
           </div>
         ))}

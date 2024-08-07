@@ -15,6 +15,14 @@ const RightPanel = () => {
 
   if (suggestedUsers?.length === 0) return <div className="md:w-64 w-0" />;
 
+  const handleFollowingUser = (userId: string) => {
+    setFollowingUserId(userId);
+    followMutate(
+      { userId: userId },
+      { onSettled: () => setFollowingUserId(null) }
+    );
+  };
+
   return (
     <div className="hidden lg:block m-4">
       <div className="bg-[#16181C] p-4 rounded-md sticky top-2">
@@ -56,11 +64,7 @@ const RightPanel = () => {
                     className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
                     onClick={(e) => {
                       e.preventDefault();
-                      setFollowingUserId(user._id);
-                      followMutate(
-                        { userId: user._id },
-                        { onSettled: () => setFollowingUserId(null) }
-                      );
+                      handleFollowingUser(user._id);
                     }}
                   >
                     {followingUserId === user._id ? (

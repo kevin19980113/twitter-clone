@@ -4,10 +4,12 @@ export const getNotifications = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const notifications = await Notification.find({ to: userId }).populate({
-      path: "from",
-      select: "username profileImage",
-    });
+    const notifications = await Notification.find({ to: userId })
+      .populate({
+        path: "from",
+        select: "username profileImage",
+      })
+      .sort({ createdAt: -1 });
 
     await Notification.updateMany({ to: userId }, { read: true });
 
@@ -37,16 +39,25 @@ export const deleteNotification = async (req, res) => {
     const notification = await Notification.findById(notificationId);
 
     if (!notification)
-      return res.status(404).json({ message: "Notification not found" });
+      return res.status(404).json({ error: "Notification not found" });
 
-    if (notification.to.toString() === userId.toString())
+    if (notification.to.toString() !== userId.toString())
       return res.status(403).json({
-        message: "You are not authorized to delete this notification",
+        error: "You are not authorized to delete this notification",
       });
 
     await Notification.findByIdAndDelete(notificationId);
 
-    res.status(200).json({ message: "Notification deleted successfully" });
+    const updatedNotifications = await Notification.find({
+      to: userId,
+    })
+      .populate({
+        path: "from",
+        select: "username profileImage",
+      })
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ updatedNotifications });
   } catch (error) {
     console.error("Error in deleteNotification controller: ", error.message);
     res.status(500).json({ error: "Internal Server Error" });
