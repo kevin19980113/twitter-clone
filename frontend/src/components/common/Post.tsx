@@ -12,30 +12,34 @@ import { PostType } from "../../types/postType";
 
 const Post = ({ post }: { post: PostType }) => {
   const [comment, setComment] = useState("");
+
   const { getAuthUser } = useAuth();
   const { data: authUser } = getAuthUser;
 
-  const { deletePost } = usePost();
-  const { mutate: deletePostMutate, isPending } = deletePost;
+  const { deletePost, likePost } = usePost();
+  const { mutate: deletePostMutate, isPending: isDeleting } = deletePost;
+  const { mutate: likePostMutate, isPending: isLiking } = likePost;
 
   const postOwner = post.user;
-  const isLiked = false;
-
+  const isLiked = post.likes.some((like) => {
+    return like._id === authUser?._id;
+  });
   const isMyPost = authUser?._id === post.user._id;
-
   const formattedDate = "1h";
-
   const isCommenting = false;
 
   const handleDeletePost = () => {
-    deletePostMutate({ postId: post._id });
+    deletePostMutate({ post });
   };
 
   const handlePostComment = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   };
 
-  const handleLikePost = () => {};
+  const handleLikePost = () => {
+    if (isLiking) return;
+    likePostMutate({ post });
+  };
 
   return (
     <Fragment>
@@ -65,7 +69,7 @@ const Post = ({ post }: { post: PostType }) => {
             </span>
             {isMyPost && (
               <span className="flex justify-end flex-1">
-                {isPending ? (
+                {isDeleting ? (
                   <LoadingSpinner size="sm" />
                 ) : (
                   <FaTrash
@@ -154,11 +158,7 @@ const Post = ({ post }: { post: PostType }) => {
                       onChange={(e) => setComment(e.target.value)}
                     />
                     <button className="btn btn-primary rounded-full btn-sm text-white px-4">
-                      {isCommenting ? (
-                        <span className="loading loading-spinner loading-md"></span>
-                      ) : (
-                        "Post"
-                      )}
+                      {isCommenting ? <LoadingSpinner size="sm" /> : "Post"}
                     </button>
                   </form>
                 </div>
@@ -176,19 +176,24 @@ const Post = ({ post }: { post: PostType }) => {
                 className="flex gap-1 items-center group cursor-pointer"
                 onClick={handleLikePost}
               >
-                {!isLiked && (
-                  <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
+                {isLiking ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <Fragment>
+                    <FaRegHeart
+                      className={`w-4 h-4  group-hover:text-red-500 ${
+                        isLiked ? "text-red-500" : "text-slate-500"
+                      }`}
+                    />
+                    <span
+                      className={`text-sm  group-hover:text-pink-500 ${
+                        isLiked ? "text-pink-500" : "text-slate-500"
+                      }`}
+                    >
+                      {post.likes.length}
+                    </span>
+                  </Fragment>
                 )}
-                {isLiked && (
-                  <FaRegHeart className="w-4 h-4 cursor-pointer text-pink-500 " />
-                )}
-                <span
-                  className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-                    isLiked ? "text-pink-500" : ""
-                  }`}
-                >
-                  {post.likes.length}
-                </span>
               </div>
             </div>
             <div className="flex w-1/3 justify-end gap-2 items-center">

@@ -106,7 +106,11 @@ export const likeUnlikePost = async (req, res) => {
       await Post.findByIdAndUpdate(postId, { $pull: { likes: userId } });
       await User.findByIdAndUpdate(userId, { $pull: { likedPosts: postId } });
 
-      res.status(200).json({ message: "Post unliked successfully" });
+      const updatedLikes = post.likes.filter(
+        (_id) => _id.toString() !== userId.toString()
+      );
+
+      res.status(200).json({ updatedLikes });
     } else {
       // Like the post
       post.likes.push(userId);
@@ -122,7 +126,7 @@ export const likeUnlikePost = async (req, res) => {
       });
       await notification.save();
 
-      res.status(200).json({ message: "Post liked successfully" });
+      res.status(200).json({ updatedLikes: post.likes });
     }
   } catch (error) {
     console.error("Error in likeUnlikePost controller: ", error.message);

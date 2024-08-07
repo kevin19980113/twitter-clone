@@ -9,19 +9,28 @@ import { useAuthStore } from "./use-store";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "sonner";
 import { createPostSchemaType } from "../lib/schema";
-import { PostType } from "../types/postType";
+import { PostType, like } from "../types/postType";
 
-type deletePostVariableType = { postId: string };
+type mutatePostVariableType = { post: PostType };
 type createPostMutationType = createPostSchemaType & {
   img: string | null;
   reset: () => void;
   setImg: React.Dispatch<React.SetStateAction<string | null>>;
 };
+type mutateLikeResultType = {
+  updatedLikes: like[];
+  setIsLiked: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
 export const usePost = (): {
   getAllPosts: (POST_ENDPOINT: string) => UseQueryResult<PostType[], Error>;
-  deletePost: UseMutationResult<void, Error, deletePostVariableType>;
+  deletePost: UseMutationResult<void, Error, mutatePostVariableType>;
   createPost: UseMutationResult<void, Error, createPostMutationType>;
+  likePost: UseMutationResult<
+    mutateLikeResultType,
+    Error,
+    mutatePostVariableType
+  >;
 } => {
   const { accessToken } = useAuthStore(
     useShallow((state) => ({
@@ -53,8 +62,8 @@ export const usePost = (): {
     });
 
   const deletePost = useMutation({
-    mutationFn: async ({ postId }: deletePostVariableType) => {
-      const res = await fetch(`/api/posts/delete/${postId}`, {
+    mutationFn: async ({ post }: mutatePostVariableType) => {
+      const res = await fetch(`/api/posts/delete/${post._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -106,5 +115,37 @@ export const usePost = (): {
     },
   });
 
-  return { getAllPosts, deletePost, createPost };
+  const likePost = useMutation({
+    mutationFn: async ({ post }: mutatePostVariableType) => {
+      const res = await fetch(`/api/posts/like/${post._id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+
+      return data;
+    },
+    onSuccess: (data: mutateLikeResultType, { post }) => {
+      //update cache directly for this specific post (invalidate X)
+      queryClient.setQueryData(["posts"], (oldData: PostType[]) => {
+        return oldData.map((p) => {
+          if (p._id === post._id) {
+            const updatedLikes = data.updatedLikes.map((userId) => ({
+              _id: userId,
+            }));
+            return { ...p, likes: updatedLikes };
+          }
+          return p;
+        });
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  return { getAllPosts, deletePost, createPost, likePost };
 };
