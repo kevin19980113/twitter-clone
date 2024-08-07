@@ -1,36 +1,54 @@
-import { ChangeEvent, useRef, useState, Fragment } from "react";
-import { Link } from "react-router-dom";
+import { ChangeEvent, useRef, useState, Fragment, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
-import { POSTS } from "../../utils/db/dummy";
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import { useUser } from "../../hooks/use-user";
+import { formatMemberSinceDate } from "../../utils/date";
+import { useAuth } from "../../hooks/use-auth";
+import { usePost } from "../../hooks/use-post";
+import { useFollow } from "../../hooks/use-follow";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState<string | null>(null);
   const [profileImg, setProfileImg] = useState<string | null>(null);
-  const [feedType, setFeedType] = useState<"posts" | "likes">("posts");
+  const [feedType, setFeedType] = useState<"POSTS" | "LIKES">("POSTS");
 
   const coverImgRef = useRef<HTMLInputElement | null>(null);
   const profileImgRef = useRef<HTMLInputElement | null>(null);
 
-  const isLoading = false;
-  const isMyProfile = true;
+  const { username } = useParams();
+  const { getAuthUser } = useAuth();
+  const { data: authUser } = getAuthUser;
+  const { getUserProfile } = useUser();
+  const { follow } = useFollow();
+  const { mutate: followMutate, isPending: isFollowing } = follow;
+  const {
+    data: user,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = getUserProfile(username);
+  const isMyProfile = username === authUser?.username;
+  const { getAllPosts } = usePost();
+  const { data: posts } = getAllPosts("/api/posts/all");
 
-  const user = {
-    _id: "1",
-    fullName: "John Doe",
-    username: "johndoe",
-    profileImg: "/avatars/boy2.png",
-    coverImg: "/cover.png",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    link: "https://youtube.com/@asaprogrammer_",
-    following: ["1", "2", "3"],
-    followers: ["1", "2", "3"],
+  const handleFollowingUser = (userId: string) => {
+    followMutate({ userId: userId });
   };
+
+  const isFollowed = authUser?.following.some(
+    (followedUserId) => followedUserId === user?._id
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [username, refetch]);
 
   const handleImgChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -55,12 +73,12 @@ const ProfilePage = () => {
     <Fragment>
       <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
         {/* HEADER */}
-        {isLoading && <ProfileHeaderSkeleton />}
-        {!isLoading && !user && (
+        {(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
+        {!isLoading && !isRefetching && !user && (
           <p className="text-center text-lg mt-4">User not found</p>
         )}
         <div className="flex flex-col">
-          {!isLoading && user && (
+          {!isLoading && !isRefetching && user && (
             <Fragment>
               <div className="flex gap-10 px-4 py-2 items-center">
                 <Link to="/">
@@ -69,7 +87,7 @@ const ProfilePage = () => {
                 <div className="flex flex-col">
                   <p className="font-bold text-lg">{user?.fullName}</p>
                   <span className="text-sm text-slate-500">
-                    {POSTS?.length} posts
+                    {posts?.length} posts
                   </span>
                 </div>
               </div>
@@ -130,9 +148,10 @@ const ProfilePage = () => {
                 {!isMyProfile && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
-                    onClick={() => alert("Followed successfully")}
+                    onClick={() => handleFollowingUser(user._id)}
                   >
-                    Follow
+                    {isFollowing && <LoadingSpinner size="sm" />}
+                    {!isFollowing && (isFollowed ? "Unfollow" : "Follow")}
                   </button>
                 )}
                 {(coverImg || profileImg) && (
@@ -160,12 +179,12 @@ const ProfilePage = () => {
                       <Fragment>
                         <FaLink className="w-3 h-3 text-slate-500" />
                         <a
-                          href="https://www.linkedin.com/in/hyunho-lee"
+                          href={user?.link}
                           target="_blank"
                           rel="noreferrer"
                           className="text-sm text-blue-500 hover:underline"
                         >
-                          https://www.linkedin.com/in/hyunho-lee/
+                          {user.link}
                         </a>
                       </Fragment>
                     </div>
@@ -173,7 +192,7 @@ const ProfilePage = () => {
                   <div className="flex gap-2 items-center">
                     <IoCalendarOutline className="w-4 h-4 text-slate-500" />
                     <span className="text-sm text-slate-500">
-                      Joined July 2021
+                      {formatMemberSinceDate(user?.createdAt)}
                     </span>
                   </div>
                 </div>
@@ -195,19 +214,19 @@ const ProfilePage = () => {
               <div className="flex w-full border-b border-gray-700 mt-4">
                 <div
                   className="flex justify-center flex-1 p-3 hover:bg-secondary transition duration-300 relative cursor-pointer"
-                  onClick={() => setFeedType("posts")}
+                  onClick={() => setFeedType("POSTS")}
                 >
                   Posts
-                  {feedType === "posts" && (
+                  {feedType === "POSTS" && (
                     <div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary" />
                   )}
                 </div>
                 <div
                   className="flex justify-center flex-1 p-3 text-slate-500 hover:bg-secondary transition duration-300 relative cursor-pointer"
-                  onClick={() => setFeedType("likes")}
+                  onClick={() => setFeedType("LIKES")}
                 >
                   Likes
-                  {feedType === "likes" && (
+                  {feedType === "LIKES" && (
                     <div className="absolute bottom-0 w-10  h-1 rounded-full bg-primary" />
                   )}
                 </div>
@@ -215,7 +234,7 @@ const ProfilePage = () => {
             </Fragment>
           )}
 
-          <Posts />
+          <Posts username={username} userId={user?._id} feedType={feedType} />
         </div>
       </div>
     </Fragment>

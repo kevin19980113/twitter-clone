@@ -3,13 +3,25 @@ import PostSkeleton from "../skeletons/PostSkeleton";
 import { Fragment, useEffect } from "react";
 import { usePost } from "../../hooks/use-post";
 
-const Posts = ({ feedType }: { feedType: "FOR YOU" | "FOLLOWING" }) => {
+const Posts = ({
+  feedType,
+  username,
+  userId,
+}: {
+  feedType: "FOR YOU" | "FOLLOWING" | "POSTS" | "LIKES";
+  username?: string;
+  userId?: string;
+}) => {
   const getPostEndPoint = () => {
     switch (feedType) {
       case "FOR YOU":
         return "/api/posts/all";
       case "FOLLOWING":
         return "/api/posts/following";
+      case "POSTS":
+        return `/api/posts/user/${username}`;
+      case "LIKES":
+        return `/api/posts/likes/${userId}`;
       default:
         return "/api/posts/all";
     }
@@ -26,7 +38,7 @@ const Posts = ({ feedType }: { feedType: "FOR YOU" | "FOLLOWING" }) => {
 
   useEffect(() => {
     refetch();
-  }, [feedType]);
+  }, [refetch, username, POST_ENDPOINT]);
 
   return (
     <Fragment>

@@ -32,14 +32,15 @@ export const useFollow = (): {
 
       if (!res.ok) throw new Error(data.error || "Failed to follow user.");
 
-      return data as User;
+      return data as User & { status: "UNFOLLOWED" | "FOLLOWED" };
     },
     onSuccess: (data, _) => {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["suggestedUsers"] }),
         queryClient.invalidateQueries({ queryKey: ["authUser"] }),
       ]);
-      toast.success(`"${data.username}" followed successfully"`);
+      if (data.status === "FOLLOWED")
+        toast.success(`"${data.username}" followed successfully"`);
     },
     onError: (error) => {
       toast.error(error.message);

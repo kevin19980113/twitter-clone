@@ -7,4 +7,7 @@ export type User = {
   coverImg?: string;
   bio?: string;
   link?: string;
+  following: string[];
+  followers: string[];
+  createdAt: Date;
 };

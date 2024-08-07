@@ -10,7 +10,7 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findOne({ username }).select(
       "-password -refreshToken"
     );
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     res.status(200).json(user);
   } catch (error) {
@@ -43,7 +43,7 @@ export const followUnfollowUser = async (req, res) => {
       });
       res
         .status(200)
-        .json({ message: `${userToModify.username} unfollowed successfully"` });
+        .json({ username: userToModify.username, status: "UNFOLLOWED" });
     } else {
       // Follow user
 
@@ -65,7 +65,9 @@ export const followUnfollowUser = async (req, res) => {
 
       await newNotification.save();
 
-      res.status(200).json({ username: userToModify.username });
+      res
+        .status(200)
+        .json({ username: userToModify.username, status: "FOLLOWED" });
     }
   } catch (error) {
     console.log("Error in followUnfollowUser controller: ", error.message);
