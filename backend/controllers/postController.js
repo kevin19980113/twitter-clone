@@ -75,6 +75,13 @@ export const commentOnPost = async (req, res) => {
     post.comments.push(newComment);
     await post.save();
 
+    const populatedPost = await Post.findById(postId).populate({
+      path: "comments.user",
+      select: "_id username fullName profileImg",
+    });
+
+    const updatedComments = populatedPost.comments;
+
     // send notification to post owner
     const notification = new Notification({
       from: req.user._id,
@@ -84,7 +91,7 @@ export const commentOnPost = async (req, res) => {
     });
     await notification.save();
 
-    res.status(200).json(newComment);
+    res.status(200).json({ updatedComments });
   } catch (error) {
     console.error("Error in commentOnPost controller: ", error.message);
     res.status(500).json({ error: "Internal Server Error" });

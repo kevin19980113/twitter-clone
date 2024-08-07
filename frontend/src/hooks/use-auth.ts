@@ -22,7 +22,7 @@ type LoginMutationResult = {
 type logoutMutationResult = {
   username: string;
 };
-type signupMutationVariableType = signupSchemaType & { reset: () => void };
+type signupMutationVariableType = signupSchemaType;
 
 const refreshAccessToken = async (): Promise<string | null> => {
   try {
@@ -121,7 +121,6 @@ export const useAuth = (): {
       username,
       fullName,
       password,
-      reset,
     }: signupMutationVariableType) => {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
@@ -137,9 +136,8 @@ export const useAuth = (): {
           data.error || "Failed to create account. Please try again."
         );
     },
-    onSuccess: (_, { reset }) => {
+    onSuccess: () => {
       toast.success("Account created successfully. You can now login.");
-      reset();
     },
     onError: (error: Error) => {
       toast.error(error.message);

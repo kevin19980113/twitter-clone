@@ -11,15 +11,15 @@ import { toast } from "sonner";
 import { createPostSchemaType } from "../lib/schema";
 import { PostType, like } from "../types/postType";
 
-type mutatePostVariableType = { post: PostType };
+type mutatePostVariableType = { post: PostType; text?: string };
 type createPostMutationType = createPostSchemaType & {
   img: string | null;
-  reset: () => void;
-  setImg: React.Dispatch<React.SetStateAction<string | null>>;
 };
 type mutateLikeResultType = {
   updatedLikes: like[];
-  setIsLiked: React.Dispatch<React.SetStateAction<boolean>>;
+};
+type mutateCommentResultType = {
+  updatedComments: Comment[];
 };
 
 export const usePost = (): {
@@ -28,6 +28,11 @@ export const usePost = (): {
   createPost: UseMutationResult<void, Error, createPostMutationType>;
   likePost: UseMutationResult<
     mutateLikeResultType,
+    Error,
+    mutatePostVariableType
+  >;
+  commentOnPost: UseMutationResult<
+    mutateCommentResultType,
     Error,
     mutatePostVariableType
   >;
@@ -83,12 +88,7 @@ export const usePost = (): {
   });
 
   const createPost = useMutation({
-    mutationFn: async ({
-      text,
-      img,
-      reset,
-      setImg,
-    }: createPostMutationType) => {
+    mutationFn: async ({ text, img }: createPostMutationType) => {
       const res = await fetch(`/api/posts/create`, {
         method: "POST",
         headers: {
@@ -104,10 +104,8 @@ export const usePost = (): {
           data.error || "Failed to create post. Please try again."
         );
     },
-    onSuccess: (_, { reset, setImg }) => {
+    onSuccess: () => {
       toast.success("Post created successfully.");
-      reset();
-      setImg(null);
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
     onError: (error) => {
@@ -147,5 +145,36 @@ export const usePost = (): {
     },
   });
 
-  return { getAllPosts, deletePost, createPost, likePost };
+  const commentOnPost = useMutation({
+    mutationFn: async ({ post, text }: mutatePostVariableType) => {
+      const res = await fetch(`/api/posts/comment/${post._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Failed to comment.");
+
+      return data;
+    },
+    onSuccess: (data: mutateCommentResultType, { post }) => {
+      queryClient.setQueryData(["posts"], (oldData: PostType[]) => {
+        return oldData.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, comments: data.updatedComments };
+          }
+          return p;
+        });
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  return { getAllPosts, deletePost, createPost, likePost, commentOnPost };
 };

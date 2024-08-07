@@ -28,7 +28,15 @@ const CreatePost = () => {
   });
 
   const handleCreatePost = (createPostData: createPostSchemaType) => {
-    createPostMutate({ ...createPostData, img, reset, setImg });
+    createPostMutate(
+      { ...createPostData, img },
+      {
+        onSettled: () => {
+          reset();
+          setImg(null);
+        },
+      }
+    );
   };
 
   const handleImgChange = (e: ChangeEvent<HTMLInputElement>) => {

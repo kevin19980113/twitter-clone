@@ -3,37 +3,56 @@ import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
-import { useState, FormEvent, Fragment } from "react";
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
 import { usePost } from "../../hooks/use-post";
 import LoadingSpinner from "./LoadingSpinner";
 import { PostType } from "../../types/postType";
+import { useForm } from "react-hook-form";
+import { createCommentSchema, createCommentSchemaType } from "../../lib/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }: { post: PostType }) => {
-  const [comment, setComment] = useState("");
-
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    reset,
+  } = useForm<createCommentSchemaType>({
+    resolver: zodResolver(createCommentSchema),
+  });
   const { getAuthUser } = useAuth();
   const { data: authUser } = getAuthUser;
 
-  const { deletePost, likePost } = usePost();
+  const { deletePost, likePost, commentOnPost } = usePost();
   const { mutate: deletePostMutate, isPending: isDeleting } = deletePost;
   const { mutate: likePostMutate, isPending: isLiking } = likePost;
+  const { mutate: commentOnPostMutate, isPending: isCommenting } =
+    commentOnPost;
 
   const postOwner = post.user;
   const isLiked = post.likes.some((like) => {
     return like._id === authUser?._id;
   });
   const isMyPost = authUser?._id === post.user._id;
-  const formattedDate = "1h";
-  const isCommenting = false;
+  const formattedDate = formatPostDate(post.createdAt);
 
   const handleDeletePost = () => {
     deletePostMutate({ post });
   };
 
-  const handlePostComment = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handlePostComment = (createCommentData: createCommentSchemaType) => {
+    if (isCommenting) return;
+    commentOnPostMutate(
+      { post, text: createCommentData.text },
+      {
+        onSettled: () => {
+          reset();
+        },
+      }
+    );
   };
 
   const handleLikePost = () => {
@@ -149,14 +168,20 @@ const Post = ({ post }: { post: PostType }) => {
                   </div>
                   <form
                     className="flex gap-2 items-center mt-4 border-t border-gray-600 pt-2"
-                    onSubmit={handlePostComment}
+                    onSubmit={handleSubmit(handlePostComment)}
                   >
-                    <textarea
-                      className="textarea w-full py-1 px-2 rounded text-md resize-none border focus:outline-none  border-gray-800"
-                      placeholder="Add a comment..."
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                    />
+                    <div className="flex flex-col gap-2 items-start flex-1">
+                      <textarea
+                        {...register("text")}
+                        className="textarea w-full py-1 px-2 rounded text-md resize-none border focus:outline-none  border-gray-800"
+                        placeholder="Add a comment..."
+                      />
+                      {errors.text && (
+                        <div className="text-red-500 text-xs">
+                          {errors.text.message}
+                        </div>
+                      )}
+                    </div>
                     <button className="btn btn-primary rounded-full btn-sm text-white px-4">
                       {isCommenting ? <LoadingSpinner size="sm" /> : "Post"}
                     </button>

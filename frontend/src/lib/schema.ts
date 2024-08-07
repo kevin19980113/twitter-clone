@@ -86,7 +86,14 @@ export const createPostSchema = z.object({
   }),
 });
 
+export const createCommentSchema = z.object({
+  text: z.string().min(1, {
+    message: "Please enter some content for your comment.",
+  }),
+});
+
 export type signupSchemaType = z.infer<typeof signupSchema>;
 export type loginSchemaType = z.infer<typeof loginSchema>;
 export type editProfileSchemaType = z.infer<typeof editProfileSchema>;
 export type createPostSchemaType = z.infer<typeof createPostSchema>;
+export type createCommentSchemaType = z.infer<typeof createCommentSchema>;

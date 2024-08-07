@@ -23,7 +23,14 @@ const SignUpPage = () => {
   const { mutate: signupMutate, isPending } = signup;
 
   const handleSignup = async (signupFormData: signupSchemaType) => {
-    signupMutate({ ...signupFormData, reset });
+    signupMutate(
+      { ...signupFormData },
+      {
+        onSettled: () => {
+          reset();
+        },
+      }
+    );
   };
 
   return (

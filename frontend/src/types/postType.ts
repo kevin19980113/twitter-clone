@@ -17,4 +17,5 @@ export type PostType = {
   img?: string;
   likes: like[];
   comments: Comment[];
+  createdAt: Date;
 };
