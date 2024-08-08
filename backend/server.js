@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path";
+import cors from "cors";
 import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import authRoute from "./routes/auth.js";
@@ -21,6 +23,14 @@ connectMongoDB();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+const __dirname = path.resolve();
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:8000",
+    credentials: true,
+  })
+);
 
 app.use(express.json({ limit: "10mb" })); // to parse req.body as JSON
 app.use((err, req, res, next) => {
@@ -39,6 +49,14 @@ app.use(protectRoute);
 app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 app.use("/api/notifications", notificationRoute);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 
 mongoose.connection.once("open", () => {
   console.log("MongoDB connected");
