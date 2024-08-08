@@ -58,7 +58,7 @@ const Sidebar = () => {
             className="mt-auto flex gap-2 items-center transition-all duration-300 hover:bg-[#181818] p-3 rounded-full"
           >
             <div className="avatar hidden md:flex items-center justify-center">
-              <div className="w-8 rounded-full">
+              <div className="size-8 rounded-full">
                 <img src={authUser?.profileImg || "/avatar-placeholder.png"} />
               </div>
             </div>
@@ -67,7 +67,9 @@ const Sidebar = () => {
                 <p className="text-white font-bold text-sm w-20 truncate">
                   {authUser?.fullName}
                 </p>
-                <p className="text-slate-500 text-sm">@{authUser?.username}</p>
+                <p className="text-slate-500 text-sm w-20 truncate">
+                  @{authUser?.username}
+                </p>
               </div>
               <BiLogOut
                 className="size-5 cursor-pointer hover:text-primary"

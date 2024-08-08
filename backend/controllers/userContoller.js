@@ -10,7 +10,7 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findOne({ username }).select(
       "-password -refreshToken"
     );
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) return res.sendStatus(404);
 
     res.status(200).json(user);
   } catch (error) {
@@ -110,20 +110,34 @@ export const getSuggestedUsers = async (req, res) => {
 };
 
 export const updateUserProfile = async (req, res) => {
-  const { fullName, email, username, currentPassword, newPassword, bio, link } =
-    req.body;
+  const { currentPassword, bio, link } = req.body;
 
-  let { profileImg, coverImg } = req.body;
+  let { fullName, email, username, profileImg, coverImg, newPassword } =
+    req.body;
   const userId = req.user._id;
 
   try {
     let user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.sendStatus(404);
 
     if ((!newPassword && currentPassword) || (newPassword && !currentPassword))
       return res.status(400).json({
         error: "Please provide both current password and new password",
       });
+
+    if (user.email === email) email = "";
+    if (user.username === username) username = "";
+
+    if (email || username) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ error: "Email is already in use" });
+      }
+
+      const usernameExists = await User.findOne({ username });
+      if (usernameExists)
+        return res.status(400).json({ error: "Username is already in use" });
+    }
 
     if (currentPassword && newPassword) {
       const isMatch = await bcrypt.compare(currentPassword, user.password);
@@ -136,10 +150,7 @@ export const updateUserProfile = async (req, res) => {
           .json({ error: "New password must be at least 6 characters long" });
 
       const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(newPassword, salt);
-      await user.save();
-
-      return res.status(200).json({ message: "Password updated successfully" });
+      newPassword = await bcrypt.hash(newPassword, salt);
     }
 
     if (profileImg) {
@@ -169,8 +180,9 @@ export const updateUserProfile = async (req, res) => {
     user.fullName = fullName || user.fullName;
     user.email = email || user.email;
     user.username = username || user.username;
-    user.bio = bio || user.bio;
-    user.link = link || user.link;
+    user.password = newPassword || user.password;
+    user.bio = bio;
+    user.link = link;
     user.profileImg = profileImg || user.profileImg;
     user.coverImg = coverImg || user.coverImg;
 

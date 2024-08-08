@@ -3,35 +3,58 @@ import { useForm } from "react-hook-form";
 import { editProfileSchema, editProfileSchemaType } from "../../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { useUser } from "../../hooks/use-user";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/use-auth";
 
 const EditProfileModal = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     watch,
+    setValue,
     clearErrors,
     reset,
   } = useForm<editProfileSchemaType>({
     resolver: zodResolver(editProfileSchema),
   });
-
   const currentPassword = watch("currentPassword");
   const newPassword = watch("newPassword");
+
+  const { getAuthUser } = useAuth();
+  const { data: authUser } = getAuthUser;
+  const { updateProfile } = useUser();
+  const { mutate: updateProfileMutate, isPending } = updateProfile;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (currentPassword && newPassword) clearErrors("password");
   }, [currentPassword, newPassword]);
 
+  useEffect(() => {
+    if (authUser) {
+      setValue("fullName", authUser.fullName);
+      setValue("username", authUser.username);
+      setValue("email", authUser.email);
+      setValue("bio", authUser.bio ? authUser.bio : "");
+      setValue("link", authUser.link ? authUser.link : "");
+    }
+  }, [authUser]);
+
   const handleEditProfile = async (
     editProfileFormData: editProfileSchemaType
   ) => {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    console.log(editProfileFormData);
-    reset();
-    (
-      document.getElementById("edit_profile_modal") as HTMLDialogElement
-    ).close();
+    updateProfileMutate(editProfileFormData, {
+      onSuccess: () => {
+        navigate(`/profile/${editProfileFormData.username}`);
+        reset();
+        (
+          document.getElementById("edit_profile_modal") as HTMLDialogElement
+        ).close();
+      },
+    });
   };
 
   return (
@@ -64,7 +87,7 @@ const EditProfileModal = () => {
                     errors?.fullName ? "input-error" : "focus:outline-primary"
                   }`}
                   name="fullName"
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
                 {errors?.fullName && (
                   <p className="text-sm text-red-500 flex-wrap">
@@ -82,7 +105,7 @@ const EditProfileModal = () => {
                     errors?.username ? "input-error" : "focus:outline-primary"
                   }`}
                   name="username"
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
                 {errors?.username && (
                   <p className="text-sm text-red-500 flex-wrap">
@@ -101,7 +124,7 @@ const EditProfileModal = () => {
                   className={`w-full input border border-gray-700 rounded p-2 input-md 
                   ${errors?.email ? "input-error" : "focus:outline-primary"}`}
                   name="email"
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
                 {errors?.email && (
                   <p className="text-sm text-red-500 flex-wrap">
@@ -116,7 +139,7 @@ const EditProfileModal = () => {
                   className={`w-full input border border-gray-700 rounded p-2 input-md 
                   ${errors?.bio ? "input-error" : "focus:outline-primary"}`}
                   name="bio"
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
               </div>
             </div>
@@ -133,7 +156,7 @@ const EditProfileModal = () => {
                       : "focus:outline-primary"
                   }`}
                   name="currentPassword"
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
                 {errors?.currentPassword && (
                   <p className="text-sm text-red-500 flex-wrap">
@@ -153,7 +176,7 @@ const EditProfileModal = () => {
                       : "focus:outline-primary"
                   }`}
                   name="newPassword"
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 />
                 {errors?.newPassword && (
                   <p className="text-sm text-red-500 flex-wrap">
@@ -174,7 +197,7 @@ const EditProfileModal = () => {
               className={`w-full input border border-gray-700 rounded p-2 input-md 
                   ${errors?.link ? "input-error" : "focus:outline-primary"}`}
               name="link"
-              disabled={isSubmitting}
+              disabled={isPending}
             />
             {errors?.link && (
               <p className="text-sm text-red-500 flex-wrap">
@@ -182,7 +205,7 @@ const EditProfileModal = () => {
               </p>
             )}
             <button className="btn btn-primary rounded-full btn-sm text-white">
-              {isSubmitting ? <LoadingSpinner size="sm" /> : "Update"}
+              {isPending ? <LoadingSpinner size="sm" /> : "Update"}
             </button>
           </form>
         </div>

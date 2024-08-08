@@ -66,7 +66,7 @@ const NotificationPage = () => {
               )}
               <Link to={`/profile/${notification.from.username}`}>
                 <div className="avatar">
-                  <div className="w-8 rounded-full">
+                  <div className="size-8 rounded-full">
                     <img
                       src={
                         notification.from.profileImg ||

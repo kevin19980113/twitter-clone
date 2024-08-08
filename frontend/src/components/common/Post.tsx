@@ -66,7 +66,7 @@ const Post = ({ post }: { post: PostType }) => {
         <div className="avatar">
           <Link
             to={`/profile/${postOwner.username}`}
-            className="w-8 rounded-full overflow-hidden"
+            className="size-8 rounded-full overflow-hidden"
           >
             <img
               src={postOwner.profileImg || "/avatar-placeholder.png"}
@@ -142,7 +142,7 @@ const Post = ({ post }: { post: PostType }) => {
                     {post.comments.map((comment) => (
                       <div key={comment._id} className="flex gap-2 items-start">
                         <div className="avatar">
-                          <div className="w-8 rounded-full">
+                          <div className="size-8 rounded-full">
                             <img
                               src={
                                 comment.user.profileImg ||

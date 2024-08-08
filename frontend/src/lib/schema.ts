@@ -37,15 +37,18 @@ export const editProfileSchema = z
       message: "Please enter a valid email address.",
     }),
     bio: z.string().optional(),
-    link: z.string().refine(
-      (link) => {
-        if (link === undefined || link === "") return true;
-        return z.string().url().safeParse(link).success;
-      },
-      {
-        message: "Please enter a valid URL.",
-      }
-    ),
+    link: z
+      .string()
+      .optional()
+      .refine(
+        (link) => {
+          if (link === undefined || link === "") return true;
+          return z.string().url().safeParse(link).success;
+        },
+        {
+          message: "Please enter a valid URL.",
+        }
+      ),
     currentPassword: z.string().refine(
       (currentPassword) => {
         if (currentPassword === undefined || currentPassword === "")

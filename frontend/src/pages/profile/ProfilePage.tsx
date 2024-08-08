@@ -12,11 +12,10 @@ import { formatMemberSinceDate } from "../../utils/date";
 import { useAuth } from "../../hooks/use-auth";
 import { usePost } from "../../hooks/use-post";
 import { useFollow } from "../../hooks/use-follow";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const ProfilePage = () => {
-  const [coverImg, setCoverImg] = useState<string | null>(null);
-  const [profileImg, setProfileImg] = useState<string | null>(null);
+  const [newCoverImg, setNewCoverImg] = useState<string | null>(null);
+  const [newProfileImg, setNewProfileImg] = useState<string | null>(null);
   const [feedType, setFeedType] = useState<"POSTS" | "LIKES">("POSTS");
 
   const coverImgRef = useRef<HTMLInputElement | null>(null);
@@ -25,7 +24,7 @@ const ProfilePage = () => {
   const { username } = useParams();
   const { getAuthUser } = useAuth();
   const { data: authUser } = getAuthUser;
-  const { getUserProfile } = useUser();
+  const { getUserProfile, updateProfile } = useUser();
   const { follow } = useFollow();
   const { mutate: followMutate, isPending: isFollowing } = follow;
   const {
@@ -34,6 +33,7 @@ const ProfilePage = () => {
     refetch,
     isRefetching,
   } = getUserProfile(username);
+  const { mutate: updateProfileMutate, isPending: isUpdating } = updateProfile;
   const isMyProfile = username === authUser?.username;
   const { getAllPosts } = usePost();
   const { data: posts } = getAllPosts("/api/posts/all");
@@ -47,8 +47,15 @@ const ProfilePage = () => {
   );
 
   useEffect(() => {
+    return () => {
+      setNewCoverImg(null);
+      setNewProfileImg(null);
+    };
+  }, [username]);
+
+  useEffect(() => {
     refetch();
-  }, [username, refetch]);
+  }, [authUser, username, refetch]);
 
   const handleImgChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -60,13 +67,35 @@ const ProfilePage = () => {
       reader.onload = (event: ProgressEvent<FileReader>) => {
         state === "coverImg" &&
           typeof event.target?.result === "string" &&
-          setCoverImg(event.target.result);
+          setNewCoverImg(event.target.result);
         state === "profileImg" &&
           typeof event.target?.result === "string" &&
-          setProfileImg(event.target.result);
+          setNewProfileImg(event.target.result);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleImageUpdate = async () => {
+    updateProfileMutate(
+      {
+        fullName: authUser!.fullName,
+        username: authUser!.username,
+        email: authUser!.email,
+        currentPassword: "",
+        newPassword: "",
+        bio: authUser?.bio,
+        link: authUser?.link,
+        coverImg: newCoverImg,
+        profileImg: newProfileImg,
+      },
+      {
+        onSuccess: () => {
+          setNewCoverImg(null);
+          setNewProfileImg(null);
+        },
+      }
+    );
   };
 
   return (
@@ -94,7 +123,7 @@ const ProfilePage = () => {
               {/* COVER IMG */}
               <div className="relative group/cover">
                 <img
-                  src={coverImg || user?.coverImg || "/cover.png"}
+                  src={newCoverImg || user?.coverImg || "/cover.png"}
                   className="h-52 w-full object-cover"
                   alt="cover image"
                 />
@@ -117,29 +146,30 @@ const ProfilePage = () => {
 
                 {/* USER AVATAR */}
                 <div className="avatar absolute -bottom-16 left-4">
-                  <div className="w-32 rounded-full relative group/avatar">
+                  <div className="size-32 rounded-full relative group/avatar">
                     <img
                       src={
-                        profileImg ||
+                        newProfileImg ||
                         user?.profileImg ||
                         "/avatar-placeholder.png"
                       }
                     />
-                    <div className="absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer">
-                      {isMyProfile && (
+                    {isMyProfile && (
+                      <div className="absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer">
                         <MdEdit
                           className="w-4 h-4 text-white hover:text-sky-300"
                           onClick={() => profileImgRef.current?.click()}
                         />
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        hidden
-                        ref={profileImgRef}
-                        onChange={(e) => handleImgChange(e, "profileImg")}
-                      />
-                    </div>
+
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          ref={profileImgRef}
+                          onChange={(e) => handleImgChange(e, "profileImg")}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -150,16 +180,16 @@ const ProfilePage = () => {
                     className="btn btn-outline rounded-full btn-sm"
                     onClick={() => handleFollowingUser(user._id)}
                   >
-                    {isFollowing && <LoadingSpinner size="sm" />}
+                    {isFollowing && "Loading..."}
                     {!isFollowing && (isFollowed ? "Unfollow" : "Follow")}
                   </button>
                 )}
-                {(coverImg || profileImg) && (
+                {(newCoverImg || newProfileImg) && isMyProfile && (
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-                    onClick={() => alert("Profile updated successfully")}
+                    onClick={() => handleImageUpdate()}
                   >
-                    Update
+                    {isUpdating ? "Updating..." : "Update"}
                   </button>
                 )}
               </div>
