@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import { fileURLToPath } from "url";
 import cors from "cors";
 import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
@@ -23,7 +24,8 @@ connectMongoDB();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(
   cors({
@@ -51,10 +53,11 @@ app.use("/api/posts", postRoute);
 app.use("/api/notifications", notificationRoute);
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+  const frontendBuildPath = path.join(__dirname, "..", "frontend", "dist");
+  app.use(express.static(frontendBuildPath));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.join(frontendBuildPath, "index.html"));
   });
 }
 
