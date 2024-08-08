@@ -26,7 +26,7 @@ export const generateRefreshTokenAndSetCookie = async (user, res) => {
 
   res.cookie("jwt", refreshToken, {
     httpOnly: true, // prevent XSS attacks
-    sameSite: "Strict", // prevents CSRF attacks
+    sameSite: "strict", // prevents CSRF attacks
     secure: process.env.NODE_ENV !== "development", // only send cookie over HTTPS(prevent XSS attacks)
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });

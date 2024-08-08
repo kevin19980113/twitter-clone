@@ -27,13 +27,6 @@ const PORT = process.env.PORT || 8000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "http://localhost:8000",
-    credentials: true,
-  })
-);
-
 app.use(express.json({ limit: "10mb" })); // to parse req.body as JSON
 app.use((err, req, res, next) => {
   if (err.type === "entity.too.large")
@@ -47,10 +40,10 @@ app.use(cookieParser()); // to parse cookies from req.headers
 
 // routing API routes
 app.use("/api/auth", authRoute);
-app.use(protectRoute);
-app.use("/api/users", userRoute);
-app.use("/api/posts", postRoute);
-app.use("/api/notifications", notificationRoute);
+// app.use(protectRoute);
+app.use("/api/users", protectRoute, userRoute);
+app.use("/api/posts", protectRoute, postRoute);
+app.use("/api/notifications", protectRoute, notificationRoute);
 
 if (process.env.NODE_ENV === "production") {
   const frontendBuildPath = path.join(__dirname, "..", "frontend", "dist");
