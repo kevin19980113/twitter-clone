@@ -1,6 +1,6 @@
 import { ChangeEvent, useRef, useState, Fragment, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import Posts from "../../components/common/Posts";
+import Posts, { getPostEndPoint } from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
 import { FaArrowLeft } from "react-icons/fa6";
@@ -36,7 +36,9 @@ const ProfilePage = () => {
   const { mutate: updateProfileMutate, isPending: isUpdating } = updateProfile;
   const isMyProfile = username === authUser?.username;
   const { getAllPosts } = usePost();
-  const { data: posts } = getAllPosts("/api/posts/all");
+
+  const POST_ENDPOINT = getPostEndPoint(feedType, username, user?._id);
+  const { data: posts } = getAllPosts(POST_ENDPOINT);
 
   const handleFollowingUser = (userId: string) => {
     followMutate({ userId: userId });

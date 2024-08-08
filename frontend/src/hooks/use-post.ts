@@ -46,7 +46,7 @@ export const usePost = (): {
 
   const getAllPosts = (POST_ENDPOINT: string) =>
     useQuery({
-      queryKey: ["posts"],
+      queryKey: ["posts", POST_ENDPOINT],
       queryFn: async () => {
         try {
           const res = await fetch(POST_ENDPOINT, {
@@ -80,7 +80,9 @@ export const usePost = (): {
     },
     onSuccess: () => {
       toast.success("Post deleted successfully.");
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({
+        queryKey: ["posts"],
+      });
     },
     onError: (error) => {
       toast.error(error.message);

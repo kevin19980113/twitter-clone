@@ -48,7 +48,7 @@ const Post = ({ post }: { post: PostType }) => {
     commentOnPostMutate(
       { post, text: createCommentData.text },
       {
-        onSettled: () => {
+        onSuccess: () => {
           reset();
         },
       }

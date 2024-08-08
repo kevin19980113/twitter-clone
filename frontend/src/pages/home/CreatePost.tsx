@@ -31,7 +31,7 @@ const CreatePost = () => {
     createPostMutate(
       { ...createPostData, img },
       {
-        onSettled: () => {
+        onSuccess: () => {
           reset();
           setImg(null);
         },

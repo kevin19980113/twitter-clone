@@ -26,7 +26,7 @@ const SignUpPage = () => {
     signupMutate(
       { ...signupFormData },
       {
-        onSettled: () => {
+        onSuccess: () => {
           reset();
         },
       }
