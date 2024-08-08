@@ -63,7 +63,7 @@ export const useNotification = (): {
       if (!res.ok) throw new Error(data.error || "something went wrong");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.setQueryData(["notifications"], []);
     },
     onError: (error) => {
       toast.error(error.message);
