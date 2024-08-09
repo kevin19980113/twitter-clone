@@ -176,6 +176,7 @@ export const getLikedPosts = async (req, res) => {
     const likedPosts = await Post.find({
       _id: { $in: user.likedPosts },
     })
+      .sort({ createdAt: -1 })
       .populate({
         path: "user",
         select: "-password -refreshToken",
