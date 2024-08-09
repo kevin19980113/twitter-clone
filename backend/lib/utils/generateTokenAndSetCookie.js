@@ -5,7 +5,7 @@ export const generateAccessToken = (userId) => {
     { userId },
     process.env.JWT_ACCESS_TOKEN_SECRET,
     {
-      expiresIn: "30m",
+      expiresIn: "5m",
     }
   );
   // payload : userId
@@ -17,7 +17,7 @@ export const generateRefreshTokenAndSetCookie = async (user, res) => {
     { userId: user._id },
     process.env.JWT_REFRESH_TOKEN_SECRET,
     {
-      expiresIn: "7d",
+      expiresIn: "10m",
     }
   );
 
