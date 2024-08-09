@@ -23,7 +23,7 @@ const RightPanel = () => {
   };
 
   return (
-    <div className="hidden lg:block m-4">
+    <div className="hidden lg:block m-4 w-[300px]">
       <div className="bg-[#16181C] p-4 rounded-md sticky top-2">
         <p className="font-bold mb-4">Who to follow</p>
         <div className="flex flex-col gap-4">
@@ -53,7 +53,7 @@ const RightPanel = () => {
                     <span className="font-semibold tracking-tight truncate w-28">
                       {user.fullName}
                     </span>
-                    <span className="text-sm text-slate-500">
+                    <span className="text-sm text-slate-500 truncate w-28">
                       @{user.username}
                     </span>
                   </div>
