@@ -57,7 +57,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     refetch();
-  }, [authUser, username, refetch]);
+  }, [username, refetch]);
 
   const handleImgChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -132,7 +132,9 @@ const ProfilePage = () => {
                 {isMyProfile && (
                   <div
                     className="absolute top-2 right-2 rounded-full p-2 bg-gray-800 bg-opacity-75 cursor-pointer opacity-0 group-hover/cover:opacity-100 transition duration-200"
-                    onClick={() => coverImgRef.current?.click()}
+                    onClick={() => {
+                      if (!isUpdating) coverImgRef.current?.click();
+                    }}
                   >
                     <MdEdit className="w-5 h-5 text-white hover:text-primary" />
                   </div>
@@ -160,7 +162,9 @@ const ProfilePage = () => {
                       <div className="absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer">
                         <MdEdit
                           className="w-4 h-4 text-white hover:text-sky-300"
-                          onClick={() => profileImgRef.current?.click()}
+                          onClick={() => {
+                            if (!isUpdating) profileImgRef.current?.click();
+                          }}
                         />
 
                         <input

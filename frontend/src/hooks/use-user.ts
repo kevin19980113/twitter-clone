@@ -27,7 +27,7 @@ export const useUser = (): {
 
   const getUserProfile = (username: string | undefined) =>
     useQuery({
-      queryKey: ["userProfile"],
+      queryKey: ["userProfile", username],
       queryFn: async () => {
         try {
           if (!username)
@@ -66,9 +66,12 @@ export const useUser = (): {
 
       if (!res.ok) throw new Error(data.error || "Failed to update profile.");
     },
-    onSuccess: () => {
+    onSuccess: (_, { username }) => {
       toast.success("Profile updated successfully.");
-      Promise.all([queryClient.invalidateQueries({ queryKey: ["authUser"] })]);
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+        queryClient.invalidateQueries({ queryKey: ["userProfile", username] }),
+      ]);
     },
     onError: (error: Error) => {
       toast.error(error.message);
