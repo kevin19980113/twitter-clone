@@ -42,9 +42,24 @@ const EditProfileModal = () => {
     }
   }, [authUser]);
 
+  const hasChanged = (formData: editProfileSchemaType) => {
+    return (
+      formData.fullName !== authUser?.fullName ||
+      formData.username !== authUser?.username ||
+      formData.email !== authUser?.email ||
+      formData.bio !== authUser?.bio ||
+      formData.link !== authUser?.link
+    );
+  };
+
   const handleEditProfile = async (
     editProfileFormData: editProfileSchemaType
   ) => {
+    if (!hasChanged(editProfileFormData))
+      return (
+        document.getElementById("edit_profile_modal") as HTMLDialogElement
+      ).close();
+
     updateProfileMutate(editProfileFormData, {
       onSuccess: () => {
         navigate(`/profile/${editProfileFormData.username}`);
