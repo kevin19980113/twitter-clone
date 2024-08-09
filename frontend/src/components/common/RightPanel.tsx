@@ -65,6 +65,7 @@ const RightPanel = () => {
                       e.preventDefault();
                       handleFollowingUser(user._id);
                     }}
+                    disabled={followingUserId === user._id}
                   >
                     {followingUserId === user._id ? "Following..." : "Follow"}
                   </button>

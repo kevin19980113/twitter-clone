@@ -181,6 +181,7 @@ const ProfilePage = () => {
                   <button
                     className="btn btn-outline rounded-full btn-sm"
                     onClick={() => handleFollowingUser(user._id)}
+                    disabled={isFollowing}
                   >
                     {isFollowing && "Loading..."}
                     {!isFollowing && (isFollowed ? "Unfollow" : "Follow")}

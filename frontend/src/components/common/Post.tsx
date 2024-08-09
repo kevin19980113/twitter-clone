@@ -182,7 +182,10 @@ const Post = ({ post }: { post: PostType }) => {
                         </div>
                       )}
                     </div>
-                    <button className="btn btn-primary rounded-full btn-sm text-white px-4">
+                    <button
+                      className="btn btn-primary rounded-full btn-sm text-white px-4"
+                      disabled={isCommenting}
+                    >
                       {isCommenting ? "Posting..." : "Post"}
                     </button>
                   </form>

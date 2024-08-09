@@ -2,7 +2,6 @@ import { Fragment, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { editProfileSchema, editProfileSchemaType } from "../../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useUser } from "../../hooks/use-user";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/use-auth";
@@ -204,8 +203,11 @@ const EditProfileModal = () => {
                 {errors?.link.message}
               </p>
             )}
-            <button className="btn btn-primary rounded-full btn-sm text-white">
-              {isPending ? <LoadingSpinner size="sm" /> : "Update"}
+            <button
+              className="btn btn-primary rounded-full btn-sm text-white"
+              disabled={isPending}
+            >
+              {isPending ? "Updating..." : "Update"}
             </button>
           </form>
         </div>
