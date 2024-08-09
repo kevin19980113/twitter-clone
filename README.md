@@ -1,5 +1,7 @@
 # Twitter Clone - Full Stack Application
 
+[![Twitter Clone Preview](previewImage/twitterclone-preview.png)](https://twitter-clone-vje9.onrender.com)
+
 ## Project Overview
 
 This project is a full-stack application that replicates core functionalities of Twitter. It's built using modern web technologies and demonstrates core concepts in both frontend and backend development.
