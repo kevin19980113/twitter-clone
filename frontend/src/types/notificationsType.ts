@@ -6,4 +6,5 @@ export type Notifications = {
   to: User;
   type: "FOLLOW" | "LIKE" | "COMMENT";
   read: boolean;
+  createdAt: Date;
 };

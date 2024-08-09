@@ -3,6 +3,7 @@ import { Fragment, useState } from "react";
 import { FaRegComment, FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { useNotification } from "../../hooks/use-notification";
+import { formatPostDate } from "../../utils/date";
 
 const NotificationPage = () => {
   const [DeletingNotification, setDeletingNotification] = useState<
@@ -80,6 +81,9 @@ const NotificationPage = () => {
                     ? "liked your post"
                     : "commented on your post"}
                 </div>
+                <span className="text-sm text-slate-500">
+                  {formatPostDate(notification.createdAt)}
+                </span>
               </Link>
               <button
                 className="btn btn-primary btn-sm rounded-md ml-auto"
