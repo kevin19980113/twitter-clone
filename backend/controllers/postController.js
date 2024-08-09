@@ -83,12 +83,14 @@ export const commentOnPost = async (req, res) => {
     const updatedComments = populatedPost.comments;
 
     // send notification to post owner
-    const notification = new Notification({
-      from: req.user._id,
-      to: post.user,
-      type: "COMMENT",
-    });
-    await notification.save();
+    if (req.user._id.toString() !== post.user.toString()) {
+      const notification = new Notification({
+        from: req.user._id,
+        to: post.user,
+        type: "COMMENT",
+      });
+      await notification.save();
+    }
 
     res.status(200).json({ updatedComments });
   } catch (error) {
@@ -124,13 +126,14 @@ export const likeUnlikePost = async (req, res) => {
       await User.findByIdAndUpdate(userId, { $push: { likedPosts: postId } });
 
       // send notification to post owner
-      const notification = new Notification({
-        from: req.user._id,
-        to: post.user,
-        type: "LIKE",
-      });
-      await notification.save();
-
+      if (req.user._id.toString() !== post.user.toString()) {
+        const notification = new Notification({
+          from: req.user._id,
+          to: post.user,
+          type: "LIKE",
+        });
+        await notification.save();
+      }
       res.status(200).json({ updatedLikes: post.likes });
     }
   } catch (error) {
