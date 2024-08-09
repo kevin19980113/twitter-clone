@@ -40,7 +40,6 @@ app.use(cookieParser()); // to parse cookies from req.headers
 
 // routing API routes
 app.use("/api/auth", authRoute);
-// app.use(protectRoute);
 app.use("/api/users", protectRoute, userRoute);
 app.use("/api/posts", protectRoute, postRoute);
 app.use("/api/notifications", protectRoute, notificationRoute);

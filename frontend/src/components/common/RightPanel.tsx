@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton.tsx";
 import { Fragment, useState } from "react";
 import { useFollow } from "../../hooks/use-follow.ts";
-import LoadingSpinner from "./LoadingSpinner.tsx";
 import { useSuggest } from "../../hooks/use-suggest.ts";
 
 const RightPanel = () => {
@@ -67,11 +66,7 @@ const RightPanel = () => {
                       handleFollowingUser(user._id);
                     }}
                   >
-                    {followingUserId === user._id ? (
-                      <LoadingSpinner size="sm" />
-                    ) : (
-                      "Follow"
-                    )}
+                    {followingUserId === user._id ? "Following..." : "Follow"}
                   </button>
                 </div>
               </Link>

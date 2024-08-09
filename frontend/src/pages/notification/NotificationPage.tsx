@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { Fragment, useState } from "react";
 import { FaRegComment, FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
@@ -40,15 +39,11 @@ const NotificationPage = () => {
           <button
             className="btn btn-primary btn-sm rounded-md"
             onClick={() => handleDeleteAllNotifications()}
+            disabled={isDeletingAll}
           >
-            Delete All
+            {isDeletingAll ? "Deleting..." : "Delete All"}
           </button>
         </div>
-        {isDeletingAll && (
-          <div className="flex justify-center h-full items-center">
-            <LoadingSpinner size="lg" />
-          </div>
-        )}
         {notifications?.length === 0 && (
           <div className="text-center p-4 font-bold">No notifications 🤔</div>
         )}
@@ -86,19 +81,17 @@ const NotificationPage = () => {
                     : "commented on your post"}
                 </div>
               </Link>
-
-              {isDeleting && DeletingNotification === notification._id ? (
-                <div className="flex justify-center h-full items-center ml-auto">
-                  <LoadingSpinner size="md" />
-                </div>
-              ) : (
-                <button
-                  className="btn btn-primary btn-sm rounded-md ml-auto"
-                  onClick={() => handleDeleteNotification(notification._id)}
-                >
-                  Delete
-                </button>
-              )}
+              <button
+                className="btn btn-primary btn-sm rounded-md ml-auto"
+                onClick={() => handleDeleteNotification(notification._id)}
+                disabled={
+                  isDeleting && DeletingNotification === notification._id
+                }
+              >
+                {isDeleting && DeletingNotification === notification._id
+                  ? "Deleting..."
+                  : "Delete"}
+              </button>
             </div>
           </div>
         ))}

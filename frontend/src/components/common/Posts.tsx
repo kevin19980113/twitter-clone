@@ -42,7 +42,7 @@ const Posts = ({
 
   useEffect(() => {
     refetch();
-  }, [refetch, posts, username, POST_ENDPOINT]);
+  }, [refetch, username, POST_ENDPOINT]);
 
   return (
     <Fragment>

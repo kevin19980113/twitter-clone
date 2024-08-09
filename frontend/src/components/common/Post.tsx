@@ -183,7 +183,7 @@ const Post = ({ post }: { post: PostType }) => {
                       )}
                     </div>
                     <button className="btn btn-primary rounded-full btn-sm text-white px-4">
-                      {isCommenting ? <LoadingSpinner size="sm" /> : "Post"}
+                      {isCommenting ? "Posting..." : "Post"}
                     </button>
                   </form>
                 </div>
@@ -201,24 +201,20 @@ const Post = ({ post }: { post: PostType }) => {
                 className="flex gap-1 items-center group cursor-pointer"
                 onClick={handleLikePost}
               >
-                {isLiking ? (
-                  <LoadingSpinner size="sm" />
-                ) : (
-                  <Fragment>
-                    <FaRegHeart
-                      className={`w-4 h-4  group-hover:text-red-500 ${
-                        isLiked ? "text-red-500" : "text-slate-500"
-                      }`}
-                    />
-                    <span
-                      className={`text-sm  group-hover:text-pink-500 ${
-                        isLiked ? "text-pink-500" : "text-slate-500"
-                      }`}
-                    >
-                      {post.likes.length}
-                    </span>
-                  </Fragment>
-                )}
+                <Fragment>
+                  <FaRegHeart
+                    className={`w-4 h-4  group-hover:text-red-500 ${
+                      isLiked ? "text-red-500" : "text-slate-500"
+                    }`}
+                  />
+                  <span
+                    className={`text-sm  group-hover:text-pink-500 ${
+                      isLiked ? "text-pink-500" : "text-slate-500"
+                    }`}
+                  >
+                    {post.likes.length}
+                  </span>
+                </Fragment>
               </div>
             </div>
             <div className="flex w-1/3 justify-end gap-2 items-center">

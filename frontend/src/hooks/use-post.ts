@@ -11,7 +11,10 @@ import { toast } from "sonner";
 import { createPostSchemaType } from "../lib/schema";
 import { PostType, like } from "../types/postType";
 
-type mutatePostVariableType = { post: PostType; text?: string };
+type mutatePostVariableType = {
+  post: PostType;
+  text?: string;
+};
 type createPostMutationType = createPostSchemaType & {
   img: string | null;
 };
@@ -46,7 +49,7 @@ export const usePost = (): {
 
   const getAllPosts = (POST_ENDPOINT: string) =>
     useQuery({
-      queryKey: ["posts", POST_ENDPOINT],
+      queryKey: ["posts"],
       queryFn: async () => {
         try {
           const res = await fetch(POST_ENDPOINT, {

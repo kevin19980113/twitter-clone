@@ -5,7 +5,7 @@ export const generateAccessToken = (userId) => {
     { userId },
     process.env.JWT_ACCESS_TOKEN_SECRET,
     {
-      expiresIn: "5m",
+      expiresIn: "30m",
     }
   );
   // payload : userId
@@ -17,7 +17,7 @@ export const generateRefreshTokenAndSetCookie = async (user, res) => {
     { userId: user._id },
     process.env.JWT_REFRESH_TOKEN_SECRET,
     {
-      expiresIn: "10m",
+      expiresIn: "7d",
     }
   );
 
@@ -28,6 +28,6 @@ export const generateRefreshTokenAndSetCookie = async (user, res) => {
     httpOnly: true, // prevent XSS attacks
     sameSite: "strict", // prevents CSRF attacks
     secure: process.env.NODE_ENV !== "development", // only send cookie over HTTPS(prevent XSS attacks)
-    maxAge: 10 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
