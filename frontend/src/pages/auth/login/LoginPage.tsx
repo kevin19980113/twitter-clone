@@ -5,7 +5,6 @@ import { MdPassword } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { loginSchema, loginSchemaType } from "../../../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import { useAuth } from "../../../hooks/use-auth";
 
 const LoginPage = () => {
@@ -77,14 +76,20 @@ const LoginPage = () => {
               </p>
             )}
           </div>
-          <button className="btn rounded-full btn-primary text-white">
-            {isPending ? <LoadingSpinner size="md" /> : "Login"}
+          <button
+            className="btn rounded-full btn-primary text-white"
+            disabled={isPending}
+          >
+            {isPending ? "Loging in..." : "Login"}
           </button>
         </form>
         <div className="flex flex-col gap-2 mt-4">
           <p className="text-white text-lg">{"Don't"} have an account?</p>
           <Link to="/signup">
-            <button className="btn rounded-full btn-primary text-white btn-outline w-full">
+            <button
+              className="btn rounded-full btn-primary text-white btn-outline w-full"
+              disabled={isPending}
+            >
               Sign up
             </button>
           </Link>

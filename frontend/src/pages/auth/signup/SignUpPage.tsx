@@ -7,7 +7,6 @@ import { MdDriveFileRenameOutline } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { signupSchema, signupSchemaType } from "../../../lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import { useAuth } from "../../../hooks/use-auth";
 
 const SignUpPage = () => {
@@ -133,14 +132,20 @@ const SignUpPage = () => {
               {errors.password.message}
             </p>
           )}
-          <button className="btn rounded-full btn-primary text-white">
-            {isPending ? <LoadingSpinner size="md" /> : "Sign up"}
+          <button
+            className="btn rounded-full btn-primary text-white"
+            disabled={isPending}
+          >
+            {isPending ? "Signing up..." : "Sign up"}
           </button>
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
           <p className="text-white text-lg mx-auto">Already have an account?</p>
           <Link to="/login">
-            <button className="btn rounded-full btn-primary text-white btn-outline w-full">
+            <button
+              className="btn rounded-full btn-primary text-white btn-outline w-full"
+              disabled={isPending}
+            >
               Sign in
             </button>
           </Link>
