@@ -1,6 +1,8 @@
 # Twitter Clone - Full Stack Application
 
-[![Twitter Clone Preview](previewImage/twitterclone-preview.png)](https://twitter-clone-vje9.onrender.com)
+<a href="https://twitter-clone-vje9.onrender.com" target="_blank">
+  <img src="previewImage/twitterclone-preview.png" alt="Twitter Clone Preview">
+</a>
 
 ## Project Overview
 
@@ -60,4 +62,4 @@ The project is divided into two main parts:
 
 ## Link
 
-- https://twitter-clone-vje9.onrender.com
+- <a href="https://twitter-clone-vje9.onrender.com" target="_blank">Live Demo</a>
