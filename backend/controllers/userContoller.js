@@ -29,7 +29,7 @@ export const followUnfollowUser = async (req, res) => {
       return res.status(400).json({ error: "Cannot follow yourself" });
 
     if (!userToModify || !currentUser)
-      return res.status(400).json({ error: "User not found" });
+      return res.status(404).json({ error: "User not found" });
 
     const isFollowing = currentUser.following.includes(idToModify);
 

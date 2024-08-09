@@ -57,9 +57,9 @@ export const usePost = (): {
               Authorization: `Bearer ${accessToken}`,
             },
           });
+          if (res.status === 404) return null;
 
           const data = await res.json();
-
           if (!res.ok) throw new Error();
 
           return data;

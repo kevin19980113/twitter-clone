@@ -102,11 +102,16 @@ const ProfilePage = () => {
 
   return (
     <Fragment>
-      <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
+      <div className="flex-[4_4_0] border-r border-gray-700 min-h-screen ">
         {/* HEADER */}
         {(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
         {!isLoading && !isRefetching && !user && (
-          <p className="text-center text-lg mt-4">User not found</p>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-6">
+            <p className="text-center text-lg font-bold">User not found</p>
+            <Link to="/" className="hover:underline btn btn-primary rounded-lg">
+              Go back to home page
+            </Link>
+          </div>
         )}
         <div className="flex flex-col">
           {!isLoading && !isRefetching && user && (

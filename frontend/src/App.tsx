@@ -14,6 +14,7 @@ import {
   useAuth,
 } from "./hooks/use-auth";
 import { useEffect } from "react";
+import NotFoundPage from "./pages/404/404page";
 
 function App() {
   const { getAuthUser, logout } = useAuth();
@@ -74,6 +75,7 @@ function App() {
           path="/profile/:username"
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       {authUser && <RightPanel />}
       <Toaster position="top-center" richColors />

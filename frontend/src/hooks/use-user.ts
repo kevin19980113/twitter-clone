@@ -30,16 +30,14 @@ export const useUser = (): {
       queryKey: ["userProfile", username],
       queryFn: async () => {
         try {
-          if (!username)
-            return toast.error("Username not found. please try again.");
-
           const res = await fetch(`/api/users/profile/${username}`, {
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
           });
-          const data = await res.json();
+          if (res.status === 404) return null;
 
+          const data = await res.json();
           if (!res.ok)
             throw new Error(data.error || "Failed to fetch user profile.");
 
